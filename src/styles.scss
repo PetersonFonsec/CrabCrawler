@@ -1,1 +1,78 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  //Colors
+  --primary-color: #FF454D;
+  --primary-dark-color: #5B061A;
+
+  --dark-color: #000;
+  --dark-color--secondary: #4D4D4D;
+
+  --energy-color: #FFF288;
+
+  --background-color: #fff;
+  --neutral-color: #FAECD8;
+  --success-color: #06D6A0;
+
+  //Fonts
+  --font-family: 'Inter', sans-serif;
+
+  //Fonts sizes
+  --font-size-normal: 16px;
+  --font-size-small: 14px;
+  --font-size-big: 18px;
+
+  --font-size-title-normal: 22px;
+
+  //Fonts weight
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+  --font-weight-bolder: 900;
+
+  //Container
+  --container-max-width: 1200px;
+  --container-max-width--small: 400px;
+  --container-padding: 20px;
+
+  //Appearance
+  --transition: 0.3s ease-in-out all;
+  --border-radius: 60px;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--background-color);
+  color: var(--primary-color);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-normal);
+  position: relative;
+
+  min-height: 100vh;
+  display: flex;
+
+  flex-direction: column;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--container-padding);
+}
+
+app-home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: inherit;
+}
