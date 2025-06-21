@@ -3,13 +3,8 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: '/landing-page',
-    pathMatch: 'full'
-  },
-  {
-    path: 'landing-page',
+    path: '**',
     component: LandingPageComponent,
-    title: 'Use Venus Store',
+    title: 'Crab Crawler - ',
   },
 ];
