@@ -1,0 +1,30 @@
+.how-works {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+
+  &_content {
+    width: 100%;
+  }
+
+  &_title {
+    margin-bottom: var(--margin-sm);
+  }
+
+  &_list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    list-style: none;
+
+    li {
+      width: 100%;
+      max-width: 289px;
+    }
+  }
+}

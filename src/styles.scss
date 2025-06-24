@@ -1,41 +1,57 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
   //Colors
-  --primary-color: #FF454D;
-  --primary-dark-color: #5B061A;
+  --primary-color: #FA2F3A;
+  --primary-dark-color: #5b061a;
 
-  --dark-color: #000;
-  --dark-color--secondary: #4D4D4D;
+  --dark-color: #1E1E1E;
+  --dark-color--secondary: #4d4d4d;
 
-  --energy-color: #FFF288;
+  --energy-color: #fff288;
 
   --background-color: #fff;
-  --neutral-color: #FAECD8;
-  --success-color: #06D6A0;
+  --neutral-color: #faecd8;
+  --success-color: #06d6a0;
 
   //Fonts
-  --font-family: 'Inter', sans-serif;
+  --font-family: "Nunito", sans-serif;
 
   //Fonts sizes
-  --font-size-normal: 16px;
+  --font-size-normal: 18px;
   --font-size-small: 14px;
-  --font-size-big: 18px;
+  --font-size-big: 22px;
 
-  --font-size-title-normal: 22px;
+  --font-size-title-normal: 24px;
+  --font-size-title-big: 32px;
 
   //Fonts weight
   --font-weight-normal: 400;
   --font-weight-bold: 700;
   --font-weight-bolder: 900;
 
+  //Fonts colors
+  --color-text-white: #fff;
+  --color-text: #1E1E1E;
+
   //Container
-  --container-max-width: 1200px;
+  --container-max-width: 940px;
   --container-max-width--small: 400px;
   --container-padding: 20px;
 
   //Appearance
   --transition: 0.3s ease-in-out all;
   --border-radius: 60px;
+
+  //internal spacing
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+
+  //margin
+  --margin-sm: 12px;
+  --margin-md: 16px;
+  --margin-lg: 24px;
+  --margin-extra-lg: 36px;
 }
 
 * {
@@ -43,11 +59,13 @@
   font-family: var(--font-family);
   margin: 0;
   padding: 0;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
 html {
   background-color: var(--background-color);
-  color: var(--primary-color);
+  color: var(--dark-color);
   font-weight: var(--font-weight-normal);
   font-size: var(--font-size-normal);
   position: relative;
@@ -64,15 +82,46 @@ main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: var(--container-padding);
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  min-height: 100vh;
 }
 
-app-home {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  height: inherit;
+.title {
+  &--small {
+    font-size: var(--font-size-title-normal);
+    font-weight: var(--font-weight-bolder);
+  }
+
+  &--normal {
+    font-size: var(--font-size-title-big);
+    font-weight: var(--font-weight-bold);
+  }
+
+  &--big {
+    font-size: var(--font-size-title-big);
+    font-weight: var(--font-weight-bolder);
+    line-height: 44px;
+  }
+}
+
+.text {
+  &--normal {
+    font-size: var(--font-size-normal);
+    font-weight: var(--font-weight-normal);
+  }
+
+  &--small {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-normal);
+  }
+
+  &--big {
+    font-size: var(--font-size-big);
+    font-weight: var(--font-weight-bold);
+  }
 }

@@ -1,0 +1,23 @@
+.how-works {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 40px;
+  background-color: var(--neutral-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+
+  &_content {
+    max-width: 312px;
+    text-align: left;
+  }
+
+  &_title {
+    margin-bottom: var(--margin-sm);
+  }
+
+  &_text {
+    margin-bottom: var(--spacing-lg);
+  }
+}

@@ -1,0 +1,12 @@
+<div class="card  {{ color() }}">
+  <div class="card_header">
+    <img [src]="icon()" alt="Card image" width="86" height="86" />
+  </div>
+
+  <div class="card_body">
+    <strong class="card_title title title--small">{{ title() }}</strong>
+    <p class="card_text">
+      <ng-content />
+    </p>
+  </div>
+</div>
