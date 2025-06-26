@@ -1,10 +1,28 @@
+@use "../../../scss/breakpoints.scss";
+
 header {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding: var(--spacing-md);
 
+  @media (max-width: breakpoints.$tablet) {
+    background-color: var(--neutral-color);
+  }
+
+  img {
+    max-width: 100%;
+
+    @media (max-width: breakpoints.$tablet) {
+      height: 38px;
+    }
+  }
+
   strong {
     margin-left: var(--spacing-sm);
+
+    @media (max-width: breakpoints.$tablet) {
+      font-size: var(--font-size-big);
+    }
   }
 }

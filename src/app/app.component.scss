@@ -1,3 +1,5 @@
+@use "shared/scss/breakpoints";
+
 app-landing-page,
 app-header,
 app-how-works,
@@ -11,4 +13,12 @@ app-footer {
 app-how-works,
 app-landing-page {
   margin-bottom: 80px;
+}
+
+app-landing-page {
+  margin-bottom: 80px;
+
+  @media (min-width: breakpoints.$tablet) {
+    padding: 24px;
+  }
 }

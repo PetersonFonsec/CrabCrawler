@@ -1,3 +1,5 @@
+@use '../../../scss/breakpoints.scss';
+
 .footer {
   display: flex;
   width: 100%;
@@ -5,10 +7,13 @@
   justify-content: center;
   flex-direction: column;
   margin-top: 80px;
-  border-radius: var(--border-radius) var(--border-radius) 0 0 ;
   background-color: var(--neutral-color);
   padding: var(--spacing-lg) var(--spacing-md);
   text-align: center;
+
+  @media (min-width: breakpoints.$tablet) {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
 
   hr {
     margin: var(--spacing-md) 0;

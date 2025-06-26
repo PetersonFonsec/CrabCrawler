@@ -84,13 +84,10 @@ main {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: var(--container-padding);
   width: 100%;
   max-width: var(--container-max-width);
   margin: 0 auto;
   min-height: 100vh;
-
-  padding-bottom: 0;
 }
 
 .title {
