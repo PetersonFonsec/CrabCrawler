@@ -7,10 +7,13 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  max-width: 100% ;
+  max-width: 100%;
 
   @media (min-width: breakpoints.$tablet) {
     border-radius: var(--border-radius);
+  }
+
+  @media (min-width: breakpoints.$desktop) {
     align-items: flex-start;
     justify-content: flex-start;
   }
@@ -23,9 +26,12 @@
     width: 100%;
 
     @media (min-width: breakpoints.$tablet) {
-      max-width: 312px;
-      text-align: left;
       padding: 40px;
+    }
+
+    @media (min-width: breakpoints.$desktop) {
+      max-width: 414px;
+      text-align: left;
     }
   }
 
