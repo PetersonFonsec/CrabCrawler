@@ -1,5 +1,7 @@
 @use "../../shared/scss/breakpoints";
 
+$header-height: 70px;
+
 .landing-page {
   align-items: center;
   background-color: var(--neutral-color);
@@ -14,8 +16,9 @@
   }
 
   @media (min-width: breakpoints.$desktop) {
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
   }
 
   &_content {
@@ -25,13 +28,22 @@
     text-align: center;
     width: 100%;
 
+    min-height: calc(100vh - $header-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
     @media (min-width: breakpoints.$tablet) {
       padding: 40px;
+      min-height: unset;
     }
 
     @media (min-width: breakpoints.$desktop) {
       max-width: 414px;
       text-align: left;
+      align-items: flex-start;
     }
   }
 
@@ -41,5 +53,20 @@
 
   &_text {
     margin-bottom: var(--spacing-lg);
+  }
+
+  &_image {
+    display: none;
+
+    @media (min-width: breakpoints.$desktop) {
+      display: block;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      max-width: 496px;
+      height: auto;
+    }
   }
 }

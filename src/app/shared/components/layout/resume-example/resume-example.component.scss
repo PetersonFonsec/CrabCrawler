@@ -1,6 +1,17 @@
+@use "../../../scss/breakpoints.scss";
+
 .resume-example {
+  min-height: 100vh;
+  padding: 80px 24px;
+  overflow: hidden;
+
   &_header {
     margin-bottom: 32px;
+    text-align: center;
+
+    @media (min-width: breakpoints.$desktop) {
+      text-align: left;
+    }
   }
 
   &_title {
@@ -9,7 +20,11 @@
 
   &_text {
     margin-bottom: var(--margin-sm);
-    max-width: 50%;
+    width: 100%;
+
+    @media (min-width: breakpoints.$desktop) {
+      max-width: 50%;
+    }
   }
 
   &_content {
@@ -40,5 +55,10 @@
     max-width: 400px;
     height: auto;
     margin-left: 20px;
+    display: none;
+
+    @media (min-width: breakpoints.$desktop) {
+      display: block;
+    }
   }
 }

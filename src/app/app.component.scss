@@ -8,16 +8,15 @@ app-faq,
 app-footer {
   width: 100%;
   display: block;
+  overflow-x: hidden;
 }
 
-app-how-works,
-app-landing-page {
-  margin-bottom: 80px;
-}
+// app-how-works,
+// app-landing-page {
+//   margin-bottom: 80px;
+// }
 
 app-landing-page {
-  margin-bottom: 80px;
-
   @media (min-width: breakpoints.$tablet) {
     padding: 24px;
   }
