@@ -11,10 +11,6 @@
   padding: var(--spacing-lg) var(--spacing-md);
   text-align: center;
 
-  @media (min-width: breakpoints.$tablet) {
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-  }
-
   hr {
     margin: var(--spacing-md) 0;
     border: none;
