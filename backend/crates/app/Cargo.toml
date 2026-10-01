@@ -1,0 +1,24 @@
+[package]
+name = "crabcrawler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "crabcrawler"
+path = "src/main.rs"
+
+[dependencies]
+crab-api.workspace = true
+crab-crawler.workspace = true
+crab-domain.workspace = true
+crab-persistence.workspace = true
+crab-processing.workspace = true
+anyhow.workspace = true
+axum.workspace = true
+sqlx.workspace = true
+clap.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
