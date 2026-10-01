@@ -1,0 +1,12 @@
+[package]
+name = "crab-processing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+crab-domain.workspace = true
+chrono.workspace = true
+serde.workspace = true
+unicode-normalization.workspace = true
