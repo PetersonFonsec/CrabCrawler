@@ -1,0 +1,22 @@
+<section class="cta" aria-labelledby="cta-title">
+  <div class="container cta_inner">
+    <h2 class="cta_title" id="cta-title" appReveal="mask">
+      @for (w of 'Antes de assinar,' | splitWords; track $index) {
+        <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+      }
+      <span class="split-word"><em [style.--i]="3">investigue.</em></span>
+    </h2>
+
+    <a class="cta_button" href="#busca" appMagnetic [appMagnetic]="0.45" data-cursor="view" data-cursor-label="Bora">
+      <svg class="cta_ring" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="cta-circle" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0" />
+        </defs>
+        <text>
+          <textPath href="#cta-circle">comece agora · é grátis · comece agora · é grátis ·</textPath>
+        </text>
+      </svg>
+      <span class="cta_label" data-magnetic-inner>Buscar<br />imóvel</span>
+    </a>
+  </div>
+</section>

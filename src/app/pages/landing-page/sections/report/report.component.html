@@ -1,0 +1,35 @@
+<section class="report" aria-labelledby="report-title">
+  <div class="container report_grid">
+    <div class="report_visual" aria-hidden="true">
+      <div class="report_paper report_paper--back"></div>
+      <img class="report_paper" src="/resume-example.webp" width="444" height="720" loading="lazy" alt="" />
+      <span class="report_chip report_chip--a">Segurança <b>8,2</b></span>
+      <span class="report_chip report_chip--b">Metrô a <b>4 min</b></span>
+      <span class="report_chip report_chip--c">m² <b>-6%</b> da média</span>
+    </div>
+
+    <div class="report_content">
+      <p class="eyebrow" appReveal="fade">O que você recebe</p>
+      <h2 class="heading" id="report-title" appReveal="mask">
+        @for (w of 'Um dossiê do bairro,' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+        }
+        <span class="split-word"><em [style.--i]="4">sem</em></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="5">letra</span></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="6">miúda.</span></span>
+      </h2>
+
+      <ol class="report_list">
+        @for (item of items; track item.title; let i = $index) {
+          <li appReveal [revealDelay]="i * 60">
+            <span class="report_index">0{{ i + 1 }}</span>
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.text }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+  </div>
+</section>

@@ -1,7 +1,54 @@
-<header>
-  <img src="/icons/crab-svg.svg" alt="um caranguejo vermelho - logo da crab crawler" class="logo" />
+<header class="header">
+  <div class="header_bar container">
+    <a class="header_brand" href="#topo" aria-label="CrabCrawler, voltar ao início" (click)="closeMenu()">
+      <img src="/icons/crab-svg.svg" alt="" width="40" height="31" class="header_logo" />
+      <span class="header_wordmark">CrabCrawler</span>
+    </a>
 
-  <strong class="title title--normal">
-    Crab Crawler
-  </strong>
+    <nav class="header_nav" aria-label="Principal">
+      <ul>
+        @for (link of links; track link.href) {
+          <li>
+            <a class="roll-link" [href]="link.href">
+              <span class="roll-link_inner" [attr.data-text]="link.label">{{ link.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <a class="header_cta" href="#busca" appMagnetic [appMagnetic]="0.25">
+      <span data-magnetic-inner>Buscar imóvel</span>
+    </a>
+
+    <button
+      type="button"
+      class="header_toggle"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="menu-mobile"
+      (click)="toggleMenu()"
+    >
+      <span class="visually-hidden">{{ menuOpen() ? 'Fechar menu' : 'Abrir menu' }}</span>
+      <span class="header_toggle-line" aria-hidden="true"></span>
+      <span class="header_toggle-line" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="header_progress" aria-hidden="true"></div>
 </header>
+
+<div class="menu" id="menu-mobile" [attr.inert]="menuOpen() ? null : ''">
+  <nav aria-label="Menu">
+    <ol>
+      @for (link of links; track link.href; let i = $index) {
+        <li [style.--i]="i">
+          <a [href]="link.href" (click)="closeMenu()">
+            <small>0{{ i + 1 }}</small>
+            {{ link.label }}
+          </a>
+        </li>
+      }
+    </ol>
+  </nav>
+  <p class="menu_foot">Antes de assinar, investigue.</p>
+</div>

@@ -1,0 +1,76 @@
+<section class="compare" id="comparar" aria-labelledby="compare-title">
+  <div class="container">
+    <header class="compare_header">
+      <p class="eyebrow" appReveal="fade">Comparação</p>
+      <h2 class="heading" id="compare-title" appReveal="mask">
+        @for (w of 'Dois bairros.' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+        }
+        <span class="split-word"><em [style.--i]="2">Uma</em></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="3">decisão.</span></span>
+      </h2>
+    </header>
+
+    <div class="compare_board" appReveal="scale">
+      <div class="compare_pickers">
+        <fieldset class="picker">
+          <legend>Bairro A</legend>
+          @for (p of places; track p.name; let i = $index) {
+            <button type="button" [attr.aria-pressed]="left() === i" (click)="choose('left', i)">{{ p.name }}</button>
+          }
+        </fieldset>
+
+        <button type="button" class="compare_swap" appMagnetic [appMagnetic]="0.4" (click)="swap()"
+          aria-label="Inverter bairros">
+          <span data-magnetic-inner>VS</span>
+        </button>
+
+        <fieldset class="picker picker--right">
+          <legend>Bairro B</legend>
+          @for (p of places; track p.name; let i = $index) {
+            <button type="button" [attr.aria-pressed]="right() === i" (click)="choose('right', i)">{{ p.name }}</button>
+          }
+        </fieldset>
+      </div>
+
+      <div class="compare_names">
+        <div>
+          <strong>{{ a().name }}</strong>
+          <span>{{ a().city }} · {{ a().price }}</span>
+        </div>
+        <div class="is-right">
+          <strong>{{ b().name }}</strong>
+          <span>{{ b().city }} · {{ b().price }}</span>
+        </div>
+      </div>
+
+      <table class="compare_table">
+        <caption class="visually-hidden">Notas de {{ a().name }} e {{ b().name }} por indicador</caption>
+        <thead class="visually-hidden">
+          <tr><th scope="col">{{ a().name }}</th><th scope="col">Indicador</th><th scope="col">{{ b().name }}</th></tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.metric) {
+            <tr>
+              <td>
+                <div class="bar bar--left" [class.is-winner]="row.winner === -1">
+                  <span class="bar_value">{{ row.a | number: '1.1-1' }}</span>
+                  <span class="bar_fill" [style.--v]="row.a / 10"></span>
+                </div>
+              </td>
+              <th scope="row">{{ row.metric }}</th>
+              <td>
+                <div class="bar" [class.is-winner]="row.winner === 1">
+                  <span class="bar_fill" [style.--v]="row.b / 10"></span>
+                  <span class="bar_value">{{ row.b | number: '1.1-1' }}</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <p class="compare_verdict" aria-live="polite">{{ verdict() }}</p>
+    </div>
+  </div>
+</section>

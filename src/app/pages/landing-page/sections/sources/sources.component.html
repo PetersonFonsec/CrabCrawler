@@ -1,0 +1,36 @@
+<section class="sources" id="fontes" aria-labelledby="sources-title">
+  <div class="container">
+    <header class="sources_header">
+      <p class="eyebrow" appReveal="fade">Origem dos dados</p>
+      <h2 class="heading" id="sources-title" appReveal="mask">
+        @for (w of 'Dados abertos,' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+        }
+        <span class="split-word"><em [style.--i]="2">fontes</em></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="3">à</span></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="4">vista.</span></span>
+      </h2>
+    </header>
+
+    <div class="sources_list" #list (pointerleave)="leave()">
+      <ul>
+        @for (s of sources; track s.name; let i = $index) {
+          <li appReveal [revealDelay]="i * 50" (pointerenter)="enter(i)" [style.--c]="s.color"
+            data-cursor="view" data-cursor-label="Fonte">
+            <span class="sources_name">{{ s.name }}</span>
+            <span class="sources_topic">{{ s.topic }}</span>
+            <p class="sources_text">{{ s.text }}</p>
+          </li>
+        }
+      </ul>
+
+      <div class="sources_preview" #preview [class.is-visible]="showing()" aria-hidden="true">
+        <div class="sources_card" [style.--c]="sources[current()].color">
+          <strong>{{ sources[current()].name }}</strong>
+          <span>{{ sources[current()].topic }}</span>
+          <p>{{ sources[current()].text }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

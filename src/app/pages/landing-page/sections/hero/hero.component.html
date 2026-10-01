@@ -1,0 +1,100 @@
+<section class="hero" id="topo" aria-labelledby="hero-title">
+  <!-- Mapa base -->
+  <div class="hero_map" aria-hidden="true">
+    <svg [attr.viewBox]="'0 0 ' + mapWidth + ' ' + mapHeight" preserveAspectRatio="xMidYMid slice">
+      @for (b of blocks; track $index) {
+        <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="6"
+          [class.park]="b.park" />
+      }
+      <path class="river" d="M-40 560 C 260 520, 380 700, 640 660 S 1040 420, 1280 520 S 1560 700, 1660 640" />
+      <path class="avenue" d="M-20 980 L 1620 120" />
+      <path class="avenue" d="M120 -20 L 760 1020" />
+    </svg>
+  </div>
+
+  <!-- Camada de dados, revelada só dentro da lupa -->
+  <div class="hero_data" aria-hidden="true">
+    <svg [attr.viewBox]="'0 0 ' + mapWidth + ' ' + mapHeight" preserveAspectRatio="xMidYMid slice">
+      @for (b of blocks; track $index) {
+        <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="6"
+          [attr.fill]="b.color" />
+      }
+      <path class="river" d="M-40 560 C 260 520, 380 700, 640 660 S 1040 420, 1280 520 S 1560 700, 1660 640" />
+      <path class="avenue" d="M-20 980 L 1620 120" />
+      <path class="avenue" d="M120 -20 L 760 1020" />
+      @for (p of pins; track p.label) {
+        <g class="pin" [attr.transform]="'translate(' + p.x + ' ' + p.y + ')'">
+          <circle r="34" class="pin_pulse" />
+          <circle r="10" />
+          <rect x="18" y="-26" width="150" height="52" rx="26" />
+          <text x="40" y="-3" class="pin_label">{{ p.label }}</text>
+          <text x="40" y="17" class="pin_value">{{ p.value }}</text>
+        </g>
+      }
+    </svg>
+  </div>
+
+  <div class="hero_lens" aria-hidden="true">
+    <span class="hero_lens-handle"></span>
+    <span class="hero_lens-readout">
+      <b>Raio-X</b>
+      <span #coords>-23.5600, -46.6900</span>
+    </span>
+  </div>
+
+  <img class="hero_crab" src="/landing-page-image.png" width="496" height="350" alt=""
+    fetchpriority="high" />
+
+  <div class="hero_content container">
+    <p class="eyebrow hero_eyebrow">Busca de imóveis + inteligência urbana</p>
+
+    <h1 class="hero_title" id="hero-title">
+      <span class="hero_line">
+        @for (w of 'Saiba onde' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+        }
+      </span>
+      <span class="hero_line">
+        @for (w of 'você está' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index + 2">{{ w }}</span></span>{{ ' ' }}
+        }
+      </span>
+      <span class="hero_line">
+        <span class="split-word"><span [style.--i]="4">se</span></span>{{ ' ' }}
+        <span class="split-word"><em [style.--i]="5">metendo.</em></span>
+      </span>
+    </h1>
+
+    <p class="lead hero_lead">
+      Encontre o imóvel e descubra tudo o que o anúncio não conta: segurança, escolas, saúde,
+      transporte e preço do bairro, cruzados a partir de dados públicos.
+    </p>
+
+    <form class="hero_search" id="busca" role="search" (submit)="search($event)">
+      <label class="visually-hidden" for="hero-query">Endereço, bairro ou CEP</label>
+      <svg class="hero_search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <input id="hero-query" name="query" type="search" autocomplete="street-address"
+        placeholder="Endereço, bairro ou CEP" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+      <button type="submit" class="hero_search-button" appMagnetic [appMagnetic]="0.3">
+        <span data-magnetic-inner>Investigar</span>
+      </button>
+    </form>
+
+    <div class="hero_suggestions">
+      <span>Experimente:</span>
+      @for (s of suggestions; track s) {
+        <button type="button" (click)="pick(s)">{{ s }}</button>
+      }
+    </div>
+
+    <p class="hero_status" role="status" aria-live="polite">{{ status() }}</p>
+  </div>
+
+  <a class="hero_scroll" href="#como-funciona" data-cursor-label="Rolar">
+    <span class="hero_scroll-line" aria-hidden="true"></span>
+    Role para explorar
+  </a>
+</section>

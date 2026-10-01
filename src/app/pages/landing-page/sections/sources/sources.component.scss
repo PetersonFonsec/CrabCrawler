@@ -1,0 +1,154 @@
+@use "../../../../shared/scss/breakpoints";
+
+:host {
+  display: block;
+}
+
+.sources {
+  padding: var(--section-spacing) 0;
+  background: var(--neutral-color);
+}
+
+.sources_header {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.sources_list {
+  position: relative;
+
+  ul {
+    list-style: none;
+    border-top: 1.5px solid var(--dark-color);
+  }
+
+  li {
+    position: relative;
+    display: grid;
+    gap: 4px 24px;
+    padding: 28px 8px;
+    border-bottom: 1.5px solid var(--dark-color);
+    isolation: isolate;
+
+    @media (min-width: breakpoints.$desktop) {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 32px 16px;
+    }
+
+    // Preenchimento que sobe no hover
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--dark-color);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.6s var(--ease-out);
+    }
+
+    &:hover::before {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.sources_name {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 7vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  transition: transform 0.6s var(--ease-out), color 0.3s;
+
+  li:hover & {
+    transform: translateX(24px);
+    color: var(--c);
+  }
+}
+
+.sources_topic {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sources_text {
+  grid-column: 1 / -1;
+  max-width: 60ch;
+  color: var(--dark-color--secondary);
+  transition: color 0.3s;
+
+  li:hover & {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  // Com mouse, o detalhe aparece no cartão flutuante.
+  :host-context(.has-cursor) & {
+    @media (min-width: breakpoints.$desktop) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+  }
+}
+
+.sources_preview {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;
+
+  :host-context(.has-cursor) & {
+    display: block;
+  }
+}
+
+.sources_card {
+  width: 300px;
+  padding: 24px;
+  margin: -110px 0 0 40px;
+  border-radius: 24px;
+  background: var(--c);
+  color: var(--dark-color);
+  box-shadow: 0 40px 60px -30px rgba(0, 0, 0, 0.5);
+  transform: scale(0.4);
+  opacity: 0;
+  transition: transform 0.5s var(--ease-out), opacity 0.3s, background-color 0.4s;
+
+  .is-visible & {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 34px;
+    letter-spacing: -0.04em;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+}

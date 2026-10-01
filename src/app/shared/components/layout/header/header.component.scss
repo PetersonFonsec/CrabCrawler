@@ -1,28 +1,257 @@
-@use "../../../scss/breakpoints.scss";
+@use "../../../scss/breakpoints";
 
-header {
+:host {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 100;
+  display: block;
+  transition: transform 0.6s var(--ease-out);
+}
+
+:host(.is-hidden) {
+  transform: translateY(-100%);
+}
+
+.header {
+  position: relative;
+  transition: background-color 0.4s ease, backdrop-filter 0.4s ease;
+
+  :host(.is-solid) & {
+    background-color: rgba(248, 241, 231, 0.78);
+    backdrop-filter: blur(14px) saturate(1.4);
+  }
+
+  :host(.menu-open) & {
+    background-color: transparent;
+    backdrop-filter: none;
+  }
+
+  &_bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: var(--header-height);
+  }
+
+  &_brand {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  &_logo {
+    width: 40px;
+    height: auto;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  &_brand:hover &_logo {
+    transform: rotate(-12deg) scale(1.08);
+  }
+
+  &_wordmark {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  &_nav {
+    display: none;
+
+    @media (min-width: breakpoints.$desktop) {
+      display: block;
+    }
+
+    ul {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+  }
+
+  &_cta {
+    display: none;
+    padding: 14px 22px;
+    border-radius: 999px;
+    background: var(--dark-color);
+    color: #fff;
+    font-weight: var(--font-weight-bold);
+    font-size: 15px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+
+    span {
+      display: block;
+    }
+
+    &:hover {
+      background: var(--primary-color);
+    }
+
+    @media (min-width: breakpoints.$tablet) {
+      display: inline-block;
+    }
+  }
+
+  &_toggle {
+    position: relative;
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--dark-color);
+    display: grid;
+    place-content: center;
+    gap: 6px;
+
+    @media (min-width: breakpoints.$desktop) {
+      display: none;
+    }
+  }
+
+  &_toggle-line {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #fff;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  &_toggle[aria-expanded="true"] &_toggle-line:first-of-type {
+    transform: translateY(4px) rotate(45deg);
+  }
+
+  &_toggle[aria-expanded="true"] &_toggle-line:last-of-type {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  // Barra de progresso de leitura, 100% CSS (scroll-driven animations)
+  &_progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--primary-color);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .header_progress {
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+// Link com rolagem de texto no hover
+.roll-link {
+  display: inline-block;
+  overflow: hidden;
+  font-weight: var(--font-weight-bold);
+  font-size: 15px;
+  text-decoration: none;
+  line-height: 1.4;
+
+  &_inner {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.55s var(--ease-out);
+
+    &::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 100%;
+      color: var(--primary-color);
+    }
+  }
+
+  &:hover &_inner,
+  &:focus-visible &_inner {
+    transform: translateY(-100%);
+  }
+}
+
+// Menu mobile em tela cheia
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: var(--spacing-md);
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: calc(var(--header-height) + 24px) var(--container-padding) 32px;
+  background: var(--primary-color);
+  color: #fff;
+  clip-path: circle(0% at calc(100% - 44px) 38px);
+  transition: clip-path 0.8s var(--ease-in-out);
+  pointer-events: none;
 
-  @media (max-width: breakpoints.$tablet) {
-    background-color: var(--neutral-color);
+  :host(.menu-open) & {
+    clip-path: circle(150% at calc(100% - 44px) 38px);
+    pointer-events: auto;
   }
 
-  img {
-    max-width: 100%;
+  ol {
+    list-style: none;
+  }
 
-    @media (max-width: breakpoints.$tablet) {
-      height: 38px;
+  li {
+    overflow: hidden;
+  }
+
+  a {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 12vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    text-decoration: none;
+    transform: translateY(110%);
+    transition: transform 0.8s var(--ease-out);
+    transition-delay: calc(0.15s + var(--i) * 0.06s);
+
+    :host(.menu-open) & {
+      transform: none;
     }
   }
 
-  strong {
-    margin-left: var(--spacing-sm);
-
-    @media (max-width: breakpoints.$tablet) {
-      font-size: var(--font-size-big);
-    }
+  small {
+    font-size: 14px;
+    letter-spacing: 0;
+    opacity: 0.7;
   }
+
+  &_foot {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: var(--font-weight-bold);
+  }
+}
+
+:host(.menu-open) .header_wordmark,
+:host(.menu-open) .header_brand {
+  color: #fff;
+}
+
+:host(.menu-open) .header_logo {
+  filter: brightness(0) invert(1);
 }
