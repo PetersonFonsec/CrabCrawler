@@ -1,23 +1,4 @@
-@use "shared/scss/breakpoints";
-
-app-landing-page,
-app-header,
-app-how-works,
-app-resume-example,
-app-faq,
-app-footer {
-  width: 100%;
+main {
   display: block;
-  overflow-x: hidden;
-}
-
-// app-how-works,
-// app-landing-page {
-//   margin-bottom: 80px;
-// }
-
-app-landing-page {
-  @media (min-width: breakpoints.$tablet) {
-    padding: 24px;
-  }
+  outline: none;
 }

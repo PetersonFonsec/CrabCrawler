@@ -1,0 +1,41 @@
+<section class="indicators" id="indicadores" aria-labelledby="indicators-title">
+  <div class="container">
+    <header class="indicators_header">
+      <p class="eyebrow" appReveal="fade">Raio-X do bairro</p>
+      <h2 class="heading" id="indicators-title" appReveal="mask">
+        @for (w of 'Tudo que o anúncio' | splitWords; track $index) {
+          <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+        }
+        <span class="split-word"><em [style.--i]="4">esquece</em></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="5">de</span></span>{{ ' ' }}
+        <span class="split-word"><span [style.--i]="6">contar.</span></span>
+      </h2>
+      <p class="lead" appReveal [revealDelay]="150">
+        Cada imóvel vem com notas de 0 a 10 para o entorno. Passe o mouse nos cards.
+      </p>
+    </header>
+
+    <ul class="indicators_grid">
+      @for (item of indicators; track item.name; let i = $index) {
+        <li appReveal [revealDelay]="(i % 3) * 90">
+          <article class="card" appTilt [appTilt]="7">
+            <div class="card_top">
+              <svg class="card_icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="item.icon" /></svg>
+              <span class="card_source">{{ item.source }}</span>
+            </div>
+            <h3 class="card_name">{{ item.name }}</h3>
+            <p class="card_score">
+              <span [appCountUp]="item.score" [decimals]="1">{{ item.score.toFixed(1).replace('.', ',') }}</span>
+              <small>/10</small>
+            </p>
+            <div class="card_meter" role="img" [attr.aria-label]="'Nota ' + item.score + ' de 10'">
+              <span [style.--v]="item.score / 10"></span>
+            </div>
+            <p class="card_text">{{ item.text }}</p>
+          </article>
+        </li>
+      }
+    </ul>
+    <p class="indicators_note">Valores ilustrativos de um bairro de exemplo.</p>
+  </div>
+</section>

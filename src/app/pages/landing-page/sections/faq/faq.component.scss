@@ -1,0 +1,113 @@
+@use "../../../../shared/scss/breakpoints";
+
+:host {
+  display: block;
+}
+
+.faq {
+  padding: var(--section-spacing) 0;
+}
+
+.faq_grid {
+  display: grid;
+  gap: 40px;
+
+  @media (min-width: breakpoints.$desktop) {
+    grid-template-columns: 4fr 7fr;
+    gap: 80px;
+  }
+
+  header {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+}
+
+.faq_list {
+  list-style: none;
+  border-top: 1.5px solid var(--dark-color);
+
+  li {
+    border-bottom: 1.5px solid var(--dark-color);
+  }
+
+  button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.faq_icon {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  transition: transform 0.5s var(--ease-out), background-color 0.3s;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 2px;
+    margin: -1px 0 0 -8px;
+    background: currentColor;
+  }
+
+  &::after {
+    transform: rotate(90deg);
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .is-open & {
+    transform: rotate(180deg);
+    background: var(--energy-color);
+    color: var(--dark-color);
+
+    &::after {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+// Altura animada com grid-template-rows (0fr → 1fr)
+.faq_answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease-out);
+
+  > div {
+    overflow: hidden;
+  }
+
+  p {
+    padding-bottom: 28px;
+    max-width: 60ch;
+    color: var(--dark-color--secondary);
+  }
+
+  .is-open & {
+    grid-template-rows: 1fr;
+  }
+}

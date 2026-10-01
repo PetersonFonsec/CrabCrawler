@@ -1,0 +1,22 @@
+<section class="marquee" aria-label="O que o CrabCrawler analisa e de onde vêm os dados">
+  <ul class="visually-hidden">
+    @for (row of rows; track $index) {
+      @for (item of row; track item) {
+        <li>{{ item }}</li>
+      }
+    }
+  </ul>
+
+  @for (row of rows; track $index; let odd = $odd) {
+    <div class="marquee_row" [class.marquee_row--alt]="odd" aria-hidden="true">
+      <div class="marquee_track" #track>
+        @for (copy of [0, 1]; track copy) {
+          @for (item of row; track item) {
+            <span class="marquee_item">{{ item }}</span>
+            <svg class="marquee_star" viewBox="0 0 24 24"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z" /></svg>
+          }
+        }
+      </div>
+    </div>
+  }
+</section>

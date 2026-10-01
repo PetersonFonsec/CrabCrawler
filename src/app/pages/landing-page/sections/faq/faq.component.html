@@ -1,0 +1,26 @@
+<section class="faq" id="duvidas" aria-labelledby="faq-title">
+  <div class="container faq_grid">
+    <header>
+      <p class="eyebrow" appReveal="fade">Dúvidas</p>
+      <h2 class="heading" id="faq-title" appReveal>Perguntas <em>frequentes</em></h2>
+    </header>
+
+    <ul class="faq_list">
+      @for (item of items; track item.q; let i = $index) {
+        <li appReveal [revealDelay]="i * 60" [class.is-open]="open() === i">
+          <h3>
+            <button type="button" [id]="'faq-q-' + i" [attr.aria-expanded]="open() === i"
+              [attr.aria-controls]="'faq-a-' + i" (click)="toggle(i)">
+              {{ item.q }}
+              <span class="faq_icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="faq_answer" [id]="'faq-a-' + i" role="region" [attr.aria-labelledby]="'faq-q-' + i"
+            [attr.inert]="open() === i ? null : ''">
+            <div><p>{{ item.a }}</p></div>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

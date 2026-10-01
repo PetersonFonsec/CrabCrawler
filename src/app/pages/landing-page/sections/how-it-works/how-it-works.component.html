@@ -1,0 +1,76 @@
+<section class="how" id="como-funciona" aria-labelledby="how-title" #section>
+  <div class="how_sticky">
+    <div class="how_track" #track>
+      <header class="how_intro">
+        <p class="eyebrow" appReveal="fade">Como funciona</p>
+        <h2 class="heading" id="how-title" appReveal="mask">
+          @for (w of 'Do anúncio à' | splitWords; track $index) {
+            <span class="split-word"><span [style.--i]="$index">{{ w }}</span></span>{{ ' ' }}
+          }
+          <span class="split-word"><em [style.--i]="3">verdade</em></span>{{ ' ' }}
+          <span class="split-word"><span [style.--i]="4">em</span></span>{{ ' ' }}
+          <span class="split-word"><span [style.--i]="5">4 passos.</span></span>
+        </h2>
+        <p class="lead" appReveal [revealDelay]="200">
+          Role para acompanhar o caranguejo. Ele faz o trabalho chato de juntar dados espalhados
+          por dezenas de sites.
+        </p>
+      </header>
+
+      <ol class="how_steps">
+        @for (step of steps; track step.title; let i = $index) {
+          <li class="how_step" [class.is-active]="active() === i" appReveal [revealDelay]="i * 80">
+            <div class="how_art" [attr.data-art]="step.art" aria-hidden="true">
+              @switch (step.art) {
+                @case ('search') {
+                  <div class="art-search">
+                    <span class="art-search_bar"><span class="art-search_text">Rua Harmonia, 123</span></span>
+                    <span class="art-search_pin"></span>
+                  </div>
+                }
+                @case ('crawl') {
+                  <svg class="art-crawl" viewBox="0 0 240 180">
+                    <g class="art-crawl_lines">
+                      <path d="M120 90 L30 30" /><path d="M120 90 L210 26" /><path d="M120 90 L26 150" />
+                      <path d="M120 90 L214 154" /><path d="M120 90 L120 12" />
+                    </g>
+                    <g class="art-crawl_nodes">
+                      <circle cx="30" cy="30" r="12" /><circle cx="210" cy="26" r="12" />
+                      <circle cx="26" cy="150" r="12" /><circle cx="214" cy="154" r="12" />
+                      <circle cx="120" cy="12" r="10" />
+                    </g>
+                    <circle class="art-crawl_core" cx="120" cy="90" r="26" />
+                  </svg>
+                }
+                @case ('cross') {
+                  <div class="art-cross">
+                    @for (h of [72, 48, 90, 60, 82]; track $index) {
+                      <span [style.--h.%]="h" [style.--i]="$index"></span>
+                    }
+                  </div>
+                }
+                @case ('decide') {
+                  <div class="art-decide">
+                    <svg viewBox="0 0 120 120">
+                      <circle cx="60" cy="60" r="50" class="art-decide_track" />
+                      <circle cx="60" cy="60" r="50" class="art-decide_value" pathLength="100" />
+                    </svg>
+                    <strong>8,4</strong>
+                  </div>
+                }
+              }
+            </div>
+            <span class="how_number">0{{ i + 1 }}</span>
+            <h3 class="how_title">{{ step.title }}</h3>
+            <p class="how_text">{{ step.text }}</p>
+          </li>
+        }
+      </ol>
+    </div>
+
+    <div class="how_progress" aria-hidden="true">
+      <span class="how_counter">0{{ active() + 1 }} / 0{{ steps.length }}</span>
+      <span class="how_bar"><span #bar></span></span>
+    </div>
+  </div>
+</section>

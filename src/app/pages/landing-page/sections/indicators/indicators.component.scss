@@ -1,0 +1,161 @@
+@use "../../../../shared/scss/breakpoints";
+
+:host {
+  display: block;
+}
+
+.indicators {
+  background: var(--dark-color);
+  color: #fff;
+  padding: var(--section-spacing) 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+
+  .lead {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  @media (min-width: breakpoints.$tablet) {
+    border-radius: 64px 64px 0 0;
+  }
+}
+
+.indicators_header {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 64px;
+  max-width: 900px;
+}
+
+.indicators_grid {
+  list-style: none;
+  display: grid;
+  gap: 20px;
+
+  @media (min-width: breakpoints.$tablet) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: breakpoints.$desktop) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  height: 100%;
+  padding: 28px;
+  border-radius: 28px;
+  background: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.5s var(--ease-out), border-color 0.4s;
+  transform-style: preserve-3d;
+  overflow: hidden;
+
+  // Brilho que acompanha o cursor
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px circle at var(--mx) var(--my), rgba(250, 47, 58, 0.28), transparent 45%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+
+  &:hover {
+    border-color: rgba(250, 47, 58, 0.5);
+    transition: transform 0.12s linear, border-color 0.4s;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  > * {
+    position: relative;
+  }
+
+  &_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  &_icon {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 12px;
+    background: var(--primary-color);
+    fill: #fff;
+  }
+
+  &_source {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+  }
+
+  &_name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  &_score {
+    font-family: var(--font-display);
+    font-size: clamp(3.4rem, 6vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    margin: 8px 0 18px;
+    font-variant-numeric: tabular-nums;
+    transform: translateZ(40px);
+
+    small {
+      font-size: 0.32em;
+      letter-spacing: 0;
+      opacity: 0.5;
+    }
+  }
+
+  &_meter {
+    height: 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    margin-bottom: 20px;
+
+    span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--energy-color), var(--success-color));
+      background-size: calc(100% / var(--v)) 100%;
+      transform-origin: left;
+      transform: scaleX(var(--v));
+      transition: transform 1.6s var(--ease-out) 0.3s;
+    }
+  }
+
+  &_text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+  }
+}
+
+:host-context(.js) li.reveal:not(.is-in) .card_meter span {
+  transform: scaleX(0);
+}
+
+.indicators_note {
+  margin-top: 28px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}

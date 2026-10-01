@@ -1,7 +1,26 @@
 <footer class="footer">
-  <div class="footer_container">
-    <p class="text text--normal">Feito com ❤ por um dev curioso.</p>
-    <hr />
-    <p class="text text--normal">© 2025 - Todos os direitos reservados</p>
+  <div class="container">
+    <div class="footer_top">
+      <p class="footer_pitch">Busca de imóveis com o raio-x do bairro. Feito com ❤ por um dev curioso.</p>
+      <nav aria-label="Rodapé">
+        <ul class="footer_links">
+          @for (link of links; track link.href) {
+            <li><a [href]="link.href">{{ link.label }}</a></li>
+          }
+        </ul>
+      </nav>
+      <a class="footer_top-link" href="#topo">Voltar ao topo ↑</a>
+    </div>
+
+    <p class="footer_wordmark" appReveal="mask" aria-hidden="true">
+      @for (l of letters; track $index) {
+        <span class="split-word"><span [style.--i]="$index">{{ l }}</span></span>
+      }
+    </p>
+
+    <div class="footer_bottom">
+      <span>© {{ year }} CrabCrawler. Todos os direitos reservados.</span>
+      <span>Dados públicos, decisões melhores.</span>
+    </div>
   </div>
 </footer>
