@@ -1,0 +1,47 @@
+# CrabCrawler
+
+> CrabCrawler é uma busca de imóveis com o "raio-x" do bairro. Para cada endereço, bairro ou CEP, ele cruza dados públicos e mostra notas de 0 a 10 para segurança, saúde, educação, mobilidade, áreas verdes e preço do m², para a pessoa decidir antes de alugar ou comprar. O site é em português do Brasil.
+
+O produto está em desenvolvimento. A busca, as notas e a comparação exibidas na página inicial são demonstrações com valores ilustrativos; a busca real será ligada quando a API estiver pronta.
+
+## Como funciona
+
+1. **Busque**: a pessoa digita um endereço, bairro ou CEP, ou cola o link de um anúncio.
+2. **Rastreamos**: o CrabCrawler coleta informações de bases públicas e portais sobre aquela região.
+3. **Cruzamos**: os dados viram indicadores simples, de 0 a 10, cada um com a fonte e a data de atualização.
+4. **Decida**: a pessoa compara imóveis e bairros lado a lado e pode receber um relatório em PDF.
+
+## Indicadores
+
+- **Segurança**: ocorrências por mil habitantes, iluminação e tendência dos últimos 12 meses (fonte: secretarias estaduais de segurança, SSP).
+- **Saúde**: hospitais, UBS e prontos-socorros a até 15 minutos (fonte: DATASUS).
+- **Educação**: escolas e creches por perto, com nota do IDEB quando disponível (fonte: INEP).
+- **Mobilidade**: distância até metrô, trem, corredores de ônibus e ciclovias (fonte: OpenStreetMap).
+- **Áreas verdes**: parques, praças e arborização num raio de 1 km (fonte: prefeituras e OpenStreetMap).
+- **Preço justo**: valor do m² comparado à média do bairro e à valorização recente (fonte: anúncios públicos de portais imobiliários).
+
+## Fontes de dados
+
+- IBGE (Censo 2022): densidade, renda média e perfil dos moradores por setor censitário.
+- SSP: boletins de ocorrência públicos agregados por região e tipo.
+- DATASUS: cadastro de estabelecimentos de saúde.
+- INEP: Censo Escolar e IDEB.
+- OpenStreetMap: ruas, estações, ciclovias, parques e comércio.
+- Portais imobiliários: anúncios públicos usados para estimar o preço do m².
+
+Quando um dado não existe para uma região, o relatório informa a ausência em vez de estimar um número.
+
+## Perguntas frequentes
+
+- **Funciona em qualquer cidade?** O foco inicial são capitais e regiões metropolitanas.
+- **Quanto custa?** A busca e as notas principais serão gratuitas; o relatório completo em PDF será um plano pago, ainda em definição.
+- **Posso comparar imóveis?** Sim, bairros e imóveis podem ser comparados indicador por indicador.
+
+## Páginas
+
+- [Página inicial](https://www.crabcrawler.com.br/): apresentação, busca e demonstração dos indicadores.
+- [Como funciona](https://www.crabcrawler.com.br/#como-funciona)
+- [Indicadores](https://www.crabcrawler.com.br/#indicadores)
+- [Comparar bairros](https://www.crabcrawler.com.br/#comparar)
+- [Fontes dos dados](https://www.crabcrawler.com.br/#fontes)
+- [Dúvidas frequentes](https://www.crabcrawler.com.br/#duvidas)

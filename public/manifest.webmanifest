@@ -1,9 +1,11 @@
 {
-  "name": "crab-crawler",
-  "short_name": "crab-crawler",
-  "display": "fullscreen",
-  "theme_color": "#FF454D",
-  "background_color": "#FAECD8",
+  "name": "CrabCrawler",
+  "short_name": "CrabCrawler",
+  "description": "Busca de imóveis com o raio-x do bairro: segurança, saúde, escolas, transporte e preço.",
+  "lang": "pt-BR",
+  "display": "standalone",
+  "theme_color": "#f8f1e7",
+  "background_color": "#f8f1e7",
   "scope": "./",
   "start_url": "./",
   "icons": [
@@ -42,6 +44,12 @@
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
