@@ -1,0 +1,140 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": 1,
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -46.566,
+       -23.695
+      ],
+      [
+       -46.564,
+       -23.695
+      ],
+      [
+       -46.564,
+       -23.693
+      ],
+      [
+       -46.566,
+       -23.693
+      ],
+      [
+       -46.566,
+       -23.695
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "uf": "SP",
+    "munic": "SÃO BERNARDO DO CAMPO",
+    "cd_geocmu": "3548708",
+    "tipolo_e1": "Deslizamento planar",
+    "tipolo_g3": null,
+    "tipolo_e3": null,
+    "cobrade_03": null,
+    "grau_vulne": "Médio",
+    "num_edif": 10.0,
+    "num_domi": 12.0,
+    "num_pess": 40.0,
+    "orgao_exec": "Serviço Geológico do Brasil",
+    "data_setor": 1400025600000,
+    "objectid": 1,
+    "num_setor": "SP_SBC_SR_FICT_01",
+    "local": "Setor fictício 1",
+    "tipolo_g1": "Deslizamento",
+    "cobrade_01": "1.1.3.2.1",
+    "tipolo_g2": "Enxurrada",
+    "tipolo_e2": null,
+    "cobrade_02": "1.2.2.0.0",
+    "grau_risco": "Muito Alto"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": 2,
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -46.5698,
+       -23.657
+      ],
+      [
+       -46.568,
+       -23.657
+      ],
+      [
+       -46.568,
+       -23.655
+      ],
+      [
+       -46.5698,
+       -23.655
+      ],
+      [
+       -46.5698,
+       -23.657
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "uf": "SP",
+    "munic": "SÃO BERNARDO DO CAMPO",
+    "cd_geocmu": "3548708",
+    "tipolo_e1": null,
+    "tipolo_g3": null,
+    "tipolo_e3": null,
+    "cobrade_03": null,
+    "grau_vulne": "Médio",
+    "num_edif": 10.0,
+    "num_domi": 12.0,
+    "num_pess": 40.0,
+    "orgao_exec": "Serviço Geológico do Brasil",
+    "data_setor": 1400025600000,
+    "objectid": 2,
+    "num_setor": "SP_SBC_SR_FICT_02",
+    "local": "Setor fictício 2",
+    "tipolo_g1": "Inundação",
+    "cobrade_01": "1.2.1.0.0",
+    "tipolo_g2": null,
+    "tipolo_e2": null,
+    "cobrade_02": null,
+    "grau_risco": "Alto"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": 3,
+   "geometry": null,
+   "properties": {
+    "uf": "SP",
+    "munic": "SÃO BERNARDO DO CAMPO",
+    "cd_geocmu": "3548708",
+    "tipolo_e1": null,
+    "tipolo_g3": null,
+    "tipolo_e3": null,
+    "cobrade_03": null,
+    "grau_vulne": "Médio",
+    "num_edif": 10.0,
+    "num_domi": 12.0,
+    "num_pess": 40.0,
+    "orgao_exec": "Serviço Geológico do Brasil",
+    "data_setor": 1400025600000,
+    "objectid": 3,
+    "num_setor": "SP_SBC_SR_FICT_03",
+    "tipolo_g1": "Erosão",
+    "cobrade_01": "1.1.4.2.0",
+    "grau_risco": "Alto"
+   }
+  }
+ ]
+}

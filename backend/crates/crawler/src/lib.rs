@@ -6,6 +6,7 @@
 
 pub mod error;
 pub mod http;
+pub mod regional;
 pub mod security;
 pub mod sources;
 

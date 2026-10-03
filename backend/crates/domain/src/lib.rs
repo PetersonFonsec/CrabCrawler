@@ -6,6 +6,7 @@
 pub mod indicator;
 pub mod listing;
 pub mod location;
+pub mod regional;
 pub mod security;
 pub mod source;
 

@@ -5,6 +5,7 @@
 
 pub mod enrich;
 pub mod normalize;
+pub mod regional;
 pub mod security;
 
 pub use enrich::{compare_price, compare_price_per_m2, PriceComparison};

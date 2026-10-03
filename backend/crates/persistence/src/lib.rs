@@ -5,10 +5,15 @@
 
 pub mod indicators;
 pub mod listings;
+pub mod regional;
 pub mod security;
 
 pub use indicators::{IndicatorRepository, IndicatorRow};
 pub use listings::{ListingFilter, ListingRepository, ListingRow};
+pub use regional::{
+    DatasetCoverageRow, DatasetRef, RegionalImportRow, RegionalRepository, RiskAreaRow,
+    SectorIndicatorRow, SectorRow, ServiceRow, StoreOutcome,
+};
 pub use security::{
     DatasetImport, ImportRow, PopulationRow, SecurityRegionRow, SecurityRepository,
 };

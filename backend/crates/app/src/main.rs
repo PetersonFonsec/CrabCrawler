@@ -7,12 +7,26 @@ use std::time::Duration;
 use anyhow::Context;
 use clap::{Parser, Subcommand};
 use crab_crawler::http::HttpClient;
+use crab_crawler::regional::geosampa::{self, GeoSampaInput, GeoSampaProvider};
+use crab_crawler::regional::ibge::{IbgeBasicAggregatesProvider, IbgeSectorMeshProvider};
+use crab_crawler::regional::raw::RawStore;
+use crab_crawler::regional::seade::SeadeIpvsProvider;
+use crab_crawler::regional::sgb::{SgbInput, SgbRiskProvider};
+use crab_crawler::regional::{
+    CensusSectorProvider, DemographicDataProvider, EnvironmentalRiskProvider,
+    InfrastructureDataProvider, RegionalDataProvider, RegionalScope,
+};
 use crab_crawler::security::sinesp::{SinespVdeProvider, VdeInput};
 use crab_crawler::security::ssp_sp::SspSpCsvProvider;
 use crab_crawler::sources::{fixture::FixtureListingSource, ibge::IbgeClient};
 use crab_crawler::{IndicatorSource, ListingSource, SecurityDataProvider, SecurityScope};
+use crab_domain::regional::{DatasetProvenance, ImportReport};
 use crab_domain::DataSource;
-use crab_persistence::{DatasetImport, IndicatorRepository, ListingRepository, SecurityRepository};
+use crab_persistence::{
+    DatasetImport, IndicatorRepository, ListingRepository, RegionalRepository, SecurityRepository,
+    StoreOutcome,
+};
+use crab_processing::regional::{normalize_risk_areas, normalize_sector_values, normalize_sectors};
 use crab_processing::security::normalize_crime_records;
 use crab_processing::{normalize_listing, Gazetteer};
 use tracing_subscriber::EnvFilter;
@@ -85,6 +99,57 @@ enum CrawlTarget {
         /// Resolve nomes de município pela API do IBGE (senão usa a lista do MVP).
         #[arg(long)]
         ibge_gazetteer: bool,
+    },
+    /// Malha de setores censitários do Censo 2022 (GeoPackage do IBGE).
+    IbgeSetores {
+        /// Ex.: SP_setores_CD2022.gpkg
+        #[arg(long)]
+        file: PathBuf,
+        /// Código IBGE do município (7 dígitos) ou da UF (2 dígitos).
+        #[arg(long, default_value = MVP_MUNICIPALITY)]
+        scope: String,
+    },
+    /// Agregados por setor do Censo 2022, arquivo Básico (CSV ou ZIP do IBGE).
+    IbgeAgregados {
+        /// Ex.: Agregados_por_setores_basico_BR_20260520.zip
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long, default_value = MVP_MUNICIPALITY)]
+        scope: String,
+    },
+    /// IPVS 2022 da Fundação Seade (CSV por setor censitário).
+    SeadeIpvs {
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long, default_value = MVP_MUNICIPALITY)]
+        scope: String,
+        /// Nome da coluna do setor (padrão: CD_SETOR ou a primeira com "setor").
+        #[arg(long)]
+        sector_column: Option<String>,
+        /// Nome da coluna do grupo (padrão: a primeira com "ipvs" ou "grupo").
+        #[arg(long)]
+        group_column: Option<String>,
+    },
+    /// Equipamentos urbanos do GeoSampa (município de São Paulo) via WFS.
+    Geosampa {
+        /// Camadas WFS (padrão: todas as confirmadas). Repita a opção para várias.
+        #[arg(long)]
+        layer: Vec<String>,
+        /// GeoJSON já baixado (exige exatamente uma --layer).
+        #[arg(long)]
+        file: Option<PathBuf>,
+        #[arg(long, env = "RAW_DATA_DIR", default_value = "data/raw")]
+        raw_dir: PathBuf,
+    },
+    /// Setorização de risco do Serviço Geológico do Brasil (API ArcGIS REST).
+    SgbRisco {
+        #[arg(long, default_value = MVP_MUNICIPALITY)]
+        municipality: String,
+        /// GeoJSON já baixado, em vez de consultar a API.
+        #[arg(long)]
+        file: Option<PathBuf>,
+        #[arg(long, env = "RAW_DATA_DIR", default_value = "data/raw")]
+        raw_dir: PathBuf,
     },
 }
 
@@ -172,8 +237,171 @@ async fn crawl(target: CrawlTarget, pool: sqlx::PgPool) -> anyhow::Result<()> {
             let provider = SinespVdeProvider::new(input);
             ingest_security(&provider, &scope, &gazetteer, pool).await?;
         }
+        CrawlTarget::IbgeSetores { file, scope } => {
+            let scope = RegionalScope::parse(&scope)?;
+            let provider = IbgeSectorMeshProvider::new(file);
+            let repo = RegionalRepository::new(pool);
+            run_import(&repo, &provider, &scope, async {
+                let batch =
+                    normalize_sectors(provider.sectors(&scope).await?, scope.municipality());
+                let outcome = repo.store_sectors(&batch).await?;
+                Ok((batch.provenance, batch.report, outcome))
+            })
+            .await?;
+        }
+        CrawlTarget::IbgeAgregados { file, scope } => {
+            let scope = RegionalScope::parse(&scope)?;
+            let provider = IbgeBasicAggregatesProvider::new(file);
+            ingest_sector_values(&provider, &scope, RegionalRepository::new(pool)).await?;
+        }
+        CrawlTarget::SeadeIpvs {
+            file,
+            scope,
+            sector_column,
+            group_column,
+        } => {
+            let scope = RegionalScope::parse(&scope)?;
+            let provider = SeadeIpvsProvider::new(file, sector_column, group_column);
+            ingest_sector_values(&provider, &scope, RegionalRepository::new(pool)).await?;
+        }
+        CrawlTarget::Geosampa {
+            layer,
+            file,
+            raw_dir,
+        } => {
+            let layers: Vec<_> = if layer.is_empty() {
+                geosampa::LAYERS.iter().collect()
+            } else {
+                layer
+                    .iter()
+                    .map(|name| {
+                        geosampa::layer(name).ok_or_else(|| {
+                            anyhow::anyhow!(
+                                "camada desconhecida: {name}. Confirmadas: {}",
+                                geosampa::LAYERS
+                                    .iter()
+                                    .map(|l| l.name)
+                                    .collect::<Vec<_>>()
+                                    .join(", ")
+                            )
+                        })
+                    })
+                    .collect::<anyhow::Result<_>>()?
+            };
+            if file.is_some() && layers.len() != 1 {
+                anyhow::bail!("--file exige exatamente uma --layer");
+            }
+            let http = Arc::new(HttpClient::new(Duration::from_millis(1000), 3)?);
+            let scope = RegionalScope::parse(geosampa::SAO_PAULO)?;
+            let repo = RegionalRepository::new(pool);
+            let mut failures = 0;
+            for layer in layers {
+                let input = match &file {
+                    Some(path) => GeoSampaInput::File(path.clone()),
+                    None => GeoSampaInput::Wfs {
+                        http: http.clone(),
+                        raw: RawStore::new(&raw_dir),
+                    },
+                };
+                let provider = GeoSampaProvider::new(layer, input);
+                let result = run_import(&repo, &provider, &scope, async {
+                    let batch = provider.services(&scope).await?;
+                    let outcome = repo.store_services(&batch).await?;
+                    Ok((batch.provenance, batch.report, outcome))
+                })
+                .await;
+                // Uma camada com problema não impede as outras.
+                if let Err(err) = result {
+                    failures += 1;
+                    tracing::error!(layer = layer.name, error = %format!("{err:#}"), "camada falhou");
+                }
+            }
+            if failures > 0 {
+                anyhow::bail!("{failures} camada(s) do GeoSampa falharam; veja o log");
+            }
+        }
+        CrawlTarget::SgbRisco {
+            municipality,
+            file,
+            raw_dir,
+        } => {
+            let scope = RegionalScope::parse(&municipality)?;
+            let input = match file {
+                Some(path) => SgbInput::File(path),
+                None => SgbInput::Api {
+                    http: Arc::new(HttpClient::new(Duration::from_millis(1000), 3)?),
+                    raw: RawStore::new(raw_dir),
+                },
+            };
+            let provider = SgbRiskProvider::new(input);
+            let repo = RegionalRepository::new(pool);
+            run_import(&repo, &provider, &scope, async {
+                let batch =
+                    normalize_risk_areas(provider.risk_areas(&scope).await?, scope.municipality());
+                let outcome = repo.store_risk_areas(&batch).await?;
+                Ok((batch.provenance, batch.report, outcome))
+            })
+            .await?;
+        }
     }
     Ok(())
+}
+
+/// Registra a importação (início, fim, falha) em `regional_imports`.
+async fn run_import(
+    repo: &RegionalRepository,
+    provider: &dyn RegionalDataProvider,
+    scope: &RegionalScope,
+    work: impl std::future::Future<
+        Output = anyhow::Result<(DatasetProvenance, ImportReport, StoreOutcome)>,
+    >,
+) -> anyhow::Result<()> {
+    let source = provider.descriptor().source.as_str();
+    let dataset = provider.dataset_name();
+    let id = repo.start_import(source, &dataset, scope.prefix()).await?;
+    match work.await {
+        Ok((provenance, report, outcome)) => {
+            repo.finish_import_ok(id, &provenance, &report, &outcome)
+                .await?;
+            tracing::info!(
+                source,
+                dataset,
+                version = %provenance.dataset_version,
+                read = report.read,
+                stored = outcome.stored,
+                skipped = report.skipped + outcome.rejected,
+                removed = outcome.removed,
+                "dataset regional importado"
+            );
+            if !report.issues.is_empty() || !outcome.issues.is_empty() {
+                tracing::warn!(issues = ?report.issues.iter().chain(&outcome.issues).collect::<Vec<_>>(), "registros ignorados");
+            }
+            Ok(())
+        }
+        Err(err) => {
+            repo.finish_import_failed(id, &format!("{err:#}")).await?;
+            Err(err.context(format!("importando {source}/{dataset}")))
+        }
+    }
+}
+
+async fn ingest_sector_values(
+    provider: &dyn DemographicDataProvider,
+    scope: &RegionalScope,
+    repo: RegionalRepository,
+) -> anyhow::Result<()> {
+    run_import(&repo, provider, scope, async {
+        let batch = normalize_sector_values(
+            provider.sector_values(scope).await?,
+            scope.municipality(),
+            |v| provider.indicator_for(v),
+        );
+        let outcome = repo
+            .store_sector_indicators(&batch, provider.capability())
+            .await?;
+        Ok((batch.provenance, batch.report, outcome))
+    })
+    .await
 }
 
 /// coleta → normalização → persistência, com registro da importação.
