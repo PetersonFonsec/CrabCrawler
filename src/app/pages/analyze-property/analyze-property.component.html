@@ -1,0 +1,166 @@
+<section class="analyze" aria-labelledby="analyze-title">
+  <div class="container analyze_inner">
+    <header class="analyze_intro">
+      <p class="eyebrow">Analisar um imóvel</p>
+      <h1 class="heading" id="analyze-title">Você encontrou um imóvel <em>interessante?</em></h1>
+      <p class="lead">Adicione algumas informações e deixe o CrabCrawler analisar a região.</p>
+    </header>
+
+    @if (phase() !== 'done') {
+      <form class="board" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <fieldset class="segmented">
+          <legend class="label">Finalidade</legend>
+          <label [class.is-active]="form.value.transaction === 'sale'">
+            <input type="radio" formControlName="transaction" value="sale" /> Venda
+          </label>
+          <label [class.is-active]="form.value.transaction === 'rent'">
+            <input type="radio" formControlName="transaction" value="rent" /> Aluguel
+          </label>
+        </fieldset>
+
+        <div class="field field--wide">
+          <label class="label" for="source_url">URL do anúncio <span class="optional">(opcional)</span></label>
+          <input id="source_url" type="url" formControlName="source_url" placeholder="https://" inputmode="url" />
+          <p class="hint">Fica salvo só como referência. O CrabCrawler não acessa o link.</p>
+          @if (error('source_url'); as e) { <p class="field_error" role="alert">{{ e }}</p> }
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="price">{{ form.value.transaction === 'rent' ? 'Aluguel (R$/mês)' : 'Preço (R$)' }}</label>
+            <input id="price" type="number" min="1" step="1" formControlName="price" inputmode="numeric" required />
+            @if (error('price'); as e) { <p class="field_error" role="alert">{{ e }}</p> }
+          </div>
+          <div class="field">
+            <label class="label" for="postal_code">CEP</label>
+            <input id="postal_code" type="text" formControlName="postal_code" placeholder="00000-000" inputmode="numeric" maxlength="9" autocomplete="postal-code" />
+            @if (error('postal_code'); as e) { <p class="field_error" role="alert">{{ e }}</p> }
+          </div>
+          <div class="field field--wide">
+            <label class="label" for="street">Endereço</label>
+            <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
+          </div>
+          <div class="field">
+            <label class="label" for="number">Número</label>
+            <input id="number" type="text" formControlName="number" />
+          </div>
+          <div class="field">
+            <label class="label" for="property_type">Tipo do imóvel</label>
+            <select id="property_type" formControlName="property_type">
+              <option value="">Selecione</option>
+              @for (t of types; track t.value) { <option [value]="t.value">{{ t.label }}</option> }
+            </select>
+          </div>
+          <div class="field">
+            <label class="label" for="area_m2">Área (m²)</label>
+            <input id="area_m2" type="number" min="1" formControlName="area_m2" inputmode="decimal" />
+            @if (error('area_m2'); as e) { <p class="field_error" role="alert">{{ e }}</p> }
+          </div>
+          <div class="field">
+            <label class="label" for="bedrooms">Quartos</label>
+            <input id="bedrooms" type="number" min="0" formControlName="bedrooms" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label class="label" for="parking_spaces">Vagas</label>
+            <input id="parking_spaces" type="number" min="0" formControlName="parking_spaces" inputmode="numeric" />
+          </div>
+        </div>
+
+        @if (locationMissing()) {
+          <p class="field_error" role="alert">Informe o CEP, ou a cidade e a UF em "Adicionar mais informações".</p>
+        }
+
+        <button type="button" class="more" (click)="toggleMore()" [attr.aria-expanded]="showMore()" aria-controls="mais-informacoes">
+          {{ showMore() ? 'Menos informações' : 'Adicionar mais informações' }}
+        </button>
+
+        @if (showMore()) {
+          <div class="grid" id="mais-informacoes">
+            <div class="field"><label class="label" for="complement">Complemento</label><input id="complement" type="text" formControlName="complement" /></div>
+            <div class="field"><label class="label" for="neighborhood">Bairro</label><input id="neighborhood" type="text" formControlName="neighborhood" /></div>
+            <div class="field"><label class="label" for="municipality">Cidade</label><input id="municipality" type="text" formControlName="municipality" autocomplete="address-level2" /></div>
+            <div class="field">
+              <label class="label" for="state">UF</label>
+              <input id="state" type="text" formControlName="state" maxlength="2" placeholder="SP" autocomplete="address-level1" />
+              @if (error('state'); as e) { <p class="field_error" role="alert">{{ e }}</p> }
+            </div>
+            <div class="field"><label class="label" for="bathrooms">Banheiros</label><input id="bathrooms" type="number" min="0" formControlName="bathrooms" /></div>
+            <div class="field"><label class="label" for="suites">Suítes</label><input id="suites" type="number" min="0" formControlName="suites" /></div>
+            <div class="field"><label class="label" for="condominium_fee">Condomínio (R$/mês)</label><input id="condominium_fee" type="number" min="0" formControlName="condominium_fee" /></div>
+            <div class="field"><label class="label" for="property_tax">IPTU (R$/ano)</label><input id="property_tax" type="number" min="0" formControlName="property_tax" /></div>
+            <div class="field field--wide"><label class="label" for="notes">Observações</label><textarea id="notes" rows="3" formControlName="notes" maxlength="5000"></textarea></div>
+          </div>
+        }
+
+        @if (generalError(); as e) { <p class="alert" role="alert">{{ e }}</p> }
+
+        <button type="submit" class="submit" [disabled]="phase() === 'saving'">
+          {{ phase() === 'saving' ? 'Salvando…' : 'Analisar a região' }}
+        </button>
+      </form>
+    } @else {
+      @if (result(); as r) {
+      <div class="board result" aria-live="polite">
+        <p class="label">Imóvel salvo</p>
+        <h2 class="result_title">
+          {{ typeLabel(r.property.property_type) }}
+          @if (r.property.neighborhood || r.property.municipality) { em {{ r.property.neighborhood ?? r.property.municipality }} }
+        </h2>
+        <p class="result_price">
+          {{ r.listing.price_brl | currency: 'BRL' : 'symbol' : '1.0-0' : 'pt-BR' }}
+          <span>{{ r.listing.transaction === 'rent' ? 'por mês' : 'à venda' }}</span>
+        </p>
+
+        <ul class="chips" aria-label="O que já dá para analisar">
+          <li [class.is-ok]="r.analysis.region_ready">Região</li>
+          <li [class.is-ok]="r.analysis.municipality_ready">Município</li>
+          <li [class.is-ok]="r.analysis.comparison_ready">Comparação de preço</li>
+        </ul>
+
+        @if (r.analysis.missing.length) {
+          <div class="block">
+            <p class="label">O que falta</p>
+            <ul class="lines">@for (m of r.analysis.missing; track m) { <li>{{ m }}</li> }</ul>
+          </div>
+        }
+        @if (r.notes.length || r.warnings.length) {
+          <div class="block">
+            <p class="label">Observações</p>
+            <ul class="lines">
+              @for (n of r.notes; track n) { <li>{{ n }}</li> }
+              @for (w of issues(r.warnings); track w) { <li>{{ w }}</li> }
+            </ul>
+          </div>
+        }
+
+        <div class="block">
+          <p class="label">Região</p>
+          @if (region(); as g) {
+            <ul class="lines">
+              <li><strong>Perfil:</strong>
+                @if (g.region.profile.status === 'AVAILABLE') { {{ g.region.profile.indicators.length }} indicadores oficiais do setor censitário. }
+                @else { {{ profileGap(g) }} }
+              </li>
+              <li><strong>Serviços:</strong>
+                @if (g.region.services.status === 'AVAILABLE') { {{ servicesFound(g) }} encontrados em {{ g.region.services.radius_m }} m. }
+                @else { Sem dados para esta localização. }
+              </li>
+              <li><strong>Riscos ambientais:</strong> {{ g.region.environmental_risks.message }}</li>
+            </ul>
+          } @else if (regionError()) {
+            <p>{{ regionError() }}</p>
+          } @else {
+            <p>Consultando a região…</p>
+          }
+        </div>
+
+        @if (r.listing.source_url; as url) {
+          <p class="hint">Anúncio de referência: <a [href]="url" rel="noopener noreferrer nofollow" target="_blank">{{ url }}</a></p>
+        }
+
+        <button type="button" class="submit" (click)="reset()">Analisar outro imóvel</button>
+      </div>
+      }
+    }
+  </div>
+</section>
