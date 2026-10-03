@@ -136,9 +136,11 @@ CSV da SSP (`;`): `municipio_ibge;delegacia;ano;mes;natureza;quantidade`.
 - A exportação dos Dados Mensais da SSP é manual (não há API documentada).
 - Sinesp: só parte dos eventos sai por município; o município é casado pelo
   nome. Sem `--ibge-gazetteer` só os municípios do MVP são reconhecidos.
-- Sinesp: quando `total_vitima` está preenchido o registro é tratado como
-  vítimas, senão `total` como ocorrências. Essa leitura ainda precisa ser
-  conferida contra uma planilha real.
+- Sinesp: para municípios de SP só há homicídio doloso, tentativa de
+  homicídio, feminicídio e latrocínio (todos por vítima), conferido nas bases
+  reais de 2023 a 2025. Roubo, furto e veículos dependem da SSP-SP.
+- Eventos municipais do Sinesp ainda não mapeados: tentativa de feminicídio,
+  lesão corporal seguida de morte e morte por intervenção de agente do Estado.
 - Os rótulos da SSP no mapeamento seguem a tabela publicada, mas a exportação
   real não pôde ser baixada daqui para conferência.
 

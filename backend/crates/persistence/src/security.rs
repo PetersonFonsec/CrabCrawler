@@ -265,12 +265,17 @@ impl SecurityRepository {
         .await
     }
 
-    /// Última importação de cada fonte de segurança.
+    /// Última importação de cada dataset (fonte + versão), mais recentes
+    /// primeiro: importar 2023 depois de 2025 não esconde o de 2025.
     pub async fn latest_imports(&self) -> Result<Vec<ImportRow>, sqlx::Error> {
         sqlx::query_as(
-            "SELECT DISTINCT ON (source) source, source_url, dataset_version, scope, \
-                records_read, records_stored, records_skipped, imported_at \
-             FROM security_dataset_imports ORDER BY source, imported_at DESC",
+            "SELECT * FROM ( \
+                SELECT DISTINCT ON (source, dataset_version) source, source_url, \
+                    dataset_version, scope, records_read, records_stored, records_skipped, \
+                    imported_at \
+                FROM security_dataset_imports \
+                ORDER BY source, dataset_version, imported_at DESC \
+             ) latest ORDER BY source, dataset_version DESC NULLS LAST",
         )
         .fetch_all(&self.pool)
         .await
