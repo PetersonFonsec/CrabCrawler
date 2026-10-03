@@ -5,15 +5,18 @@
 //! que aplica rate limiting, retry com backoff e logs.
 
 pub mod error;
+pub mod geocoding;
 pub mod http;
+pub mod property_sources;
 pub mod regional;
 pub mod security;
 pub mod sources;
 
 pub use error::CrawlError;
+pub use property_sources::{FetchBatch, ItemReadError, PropertySourceProvider};
 pub use security::{SecurityDataProvider, SecurityScope};
 
-use async_trait::async_trait;
+pub use async_trait::async_trait;
 use crab_domain::{RawListing, RegionIndicator};
 
 /// Fonte de anúncios imobiliários.

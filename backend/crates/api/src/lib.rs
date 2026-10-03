@@ -1,15 +1,20 @@
 //! API HTTP (Axum) consumida pela interface web.
 
 mod error;
+mod properties;
 mod regional;
 mod routes;
 mod security;
 
-use axum::routing::get;
+use axum::extract::DefaultBodyLimit;
+use axum::routing::{get, post};
 use axum::Router;
+use crab_ingest::PropertyIngestor;
 use crab_persistence::{
-    IndicatorRepository, ListingRepository, RegionalRepository, SecurityRepository,
+    IndicatorRepository, ListingRepository, PropertyRepository, RegionalRepository,
+    SecurityRepository,
 };
+use crab_processing::{Gazetteer, PropertyNormalizer};
 use sqlx::PgPool;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
@@ -20,18 +25,36 @@ pub struct AppState {
     pub indicators: IndicatorRepository,
     pub security: SecurityRepository,
     pub regional: RegionalRepository,
+    pub properties: PropertyRepository,
+    pub ingestor: PropertyIngestor,
 }
 
 impl AppState {
+    /// Estado sem enriquecimento externo (sem consulta de CEP nem
+    /// geocoding).
     pub fn new(pool: PgPool) -> Self {
+        let ingestor = PropertyIngestor::new(
+            PropertyRepository::new(pool.clone()),
+            PropertyNormalizer::new(Gazetteer::mvp()),
+        );
+        Self::with_ingestor(pool, ingestor)
+    }
+
+    /// Estado com um pipeline de ingestão já configurado (CEP, geocoding).
+    pub fn with_ingestor(pool: PgPool, ingestor: PropertyIngestor) -> Self {
         Self {
             listings: ListingRepository::new(pool.clone()),
             indicators: IndicatorRepository::new(pool.clone()),
             security: SecurityRepository::new(pool.clone()),
-            regional: RegionalRepository::new(pool),
+            regional: RegionalRepository::new(pool.clone()),
+            properties: PropertyRepository::new(pool),
+            ingestor,
         }
     }
 }
+
+/// Limite do corpo do cadastro manual: o formulário tem poucos campos.
+const MANUAL_BODY_LIMIT: usize = 32 * 1024;
 
 pub fn router(state: AppState) -> Router {
     Router::new()
@@ -69,6 +92,21 @@ pub fn router(state: AppState) -> Router {
             get(regional::listing_intelligence),
         )
         .route("/regional/sources", get(regional::sources))
+        .route(
+            "/properties/manual",
+            post(properties::create_manual).layer(DefaultBodyLimit::max(MANUAL_BODY_LIMIT)),
+        )
+        .route("/properties", get(properties::list_properties))
+        .route("/properties/{id}", get(properties::get_property))
+        .route(
+            "/properties/{id}/listings",
+            get(properties::property_listings),
+        )
+        .route("/properties/{id}/region", get(regional::property_region))
+        .route(
+            "/properties/{id}/intelligence",
+            get(regional::property_intelligence),
+        )
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())
         .with_state(state)
