@@ -14,14 +14,26 @@ pub enum DataSource {
     SspSp,
     /// Sinesp VDE — Dados Nacionais de Segurança Pública (MJSP).
     SinespVde,
+    /// IBGE — Censo 2022: malha e agregados por setor censitário.
+    IbgeCensoSetores,
+    /// Fundação Seade — Índice Paulista de Vulnerabilidade Social.
+    SeadeIpvs,
+    /// GeoSampa — mapa digital da cidade de São Paulo (WFS).
+    GeoSampa,
+    /// Serviço Geológico do Brasil — Setorização de Risco.
+    SgbRiskSectors,
 }
 
 impl DataSource {
-    pub const ALL: [DataSource; 4] = [
+    pub const ALL: [DataSource; 8] = [
         Self::ListingFixture,
         Self::IbgeLocalidades,
         Self::SspSp,
         Self::SinespVde,
+        Self::IbgeCensoSetores,
+        Self::SeadeIpvs,
+        Self::GeoSampa,
+        Self::SgbRiskSectors,
     ];
 
     pub fn as_str(&self) -> &'static str {
@@ -30,6 +42,10 @@ impl DataSource {
             Self::IbgeLocalidades => "ibge_localidades",
             Self::SspSp => "ssp_sp",
             Self::SinespVde => "sinesp_vde",
+            Self::IbgeCensoSetores => "ibge_censo2022_setores",
+            Self::SeadeIpvs => "seade_ipvs",
+            Self::GeoSampa => "geosampa",
+            Self::SgbRiskSectors => "sgb_setorizacao_risco",
         }
     }
 
@@ -92,6 +108,62 @@ impl DataSource {
                     "Não traz código IBGE: o município é casado pelo nome.",
                     "Vazio, zero e 'não reportado' têm significados diferentes na fonte.",
                     "Metodologia de contagem segue cada estado e pode divergir da SSP-SP.",
+                ],
+            },
+            Self::IbgeCensoSetores => SourceMetadata {
+                id: self.as_str(),
+                name: "IBGE — Censo 2022: malha e agregados por setor censitário",
+                publisher: "Instituto Brasileiro de Geografia e Estatística",
+                reference_url: "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/",
+                methodology: "Malha de setores censitários (GeoPackage por UF) e arquivo \
+                    Básico dos Agregados por Setores (V0001 a V0007: pessoas, domicílios, \
+                    média de moradores). Data de referência do Censo: 2022-08-01.",
+                limitations: &[
+                    "Retrato de 2022; não há atualização intercensitária por setor.",
+                    "Valores com sigilo aparecem como 'X' e ficam sem número.",
+                    "Densidade é calculada pelo CrabCrawler (pessoas / área do setor na malha); não é publicada no arquivo Básico.",
+                    "Renda por setor não está disponível na pasta atual do IBGE.",
+                ],
+            },
+            Self::SeadeIpvs => SourceMetadata {
+                id: self.as_str(),
+                name: "Seade — Índice Paulista de Vulnerabilidade Social (IPVS) versão 2022",
+                publisher: "Fundação Sistema Estadual de Análise de Dados",
+                reference_url: "https://dadosabertos.sp.gov.br/dataset/seade-ipvs-versao-2022",
+                methodology: "Classificação dos setores censitários do Estado de SP em grupos \
+                    de vulnerabilidade, a partir de renda e ciclo de vida das famílias \
+                    (Censo 2022). O grupo é gravado como a fonte publica.",
+                limitations: &[
+                    "Só cobre o Estado de São Paulo.",
+                    "É uma classificação relativa entre setores, não uma medida de renda.",
+                    "Setores sem população suficiente podem não ter grupo.",
+                ],
+            },
+            Self::GeoSampa => SourceMetadata {
+                id: self.as_str(),
+                name: "GeoSampa — Mapa Digital da Cidade de São Paulo",
+                publisher: "Prefeitura do Município de São Paulo",
+                reference_url: "https://geosampa.prefeitura.sp.gov.br",
+                methodology: "Camadas de equipamentos urbanos lidas pelo serviço WFS oficial \
+                    (wfs.geosampa.prefeitura.sp.gov.br), uma camada por tipo de equipamento.",
+                limitations: &[
+                    "Só cobre o município de São Paulo.",
+                    "Cada camada tem a própria data de atualização; nem todo tipo de equipamento foi importado.",
+                    "Equipamentos de municípios vizinhos não aparecem, mesmo perto da divisa.",
+                ],
+            },
+            Self::SgbRiskSectors => SourceMetadata {
+                id: self.as_str(),
+                name: "SGB — Setorização de Áreas de Risco Geológico",
+                publisher: "Serviço Geológico do Brasil",
+                reference_url: "https://geoportal.sgb.gov.br/server/rest/services/gestaoterritorial/risco/MapServer/0",
+                methodology: "Polígonos de setores de risco alto e muito alto em áreas ocupadas, \
+                    mapeados em campo pelo SGB, com tipologias COBRADE e grau de risco da \
+                    própria fonte.",
+                limitations: &[
+                    "Mapeia setores de risco alto e muito alto em áreas com moradias; não é um mapa de suscetibilidade do município inteiro.",
+                    "Cada município tem a própria data de mapeamento (São Bernardo do Campo: 2014).",
+                    "Estar fora de um setor mapeado não significa ausência de risco.",
                 ],
             },
         }

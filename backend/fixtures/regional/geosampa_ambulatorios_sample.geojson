@@ -1,0 +1,26 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::31983"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "equipamento_saude_ambulatorios_especializados.1",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     334142.16262234875,
+     7393988.888766944
+    ]
+   },
+   "properties": {
+    "nm_equipamento": "Ambulatório Fictício",
+    "tx_endereco": "Rua Exemplo, 5"
+   }
+  }
+ ]
+}

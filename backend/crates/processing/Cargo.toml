@@ -10,3 +10,6 @@ crab-domain.workspace = true
 chrono.workspace = true
 serde.workspace = true
 unicode-normalization.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

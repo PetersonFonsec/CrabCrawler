@@ -1,0 +1,41 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::31983"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "equipamento_cultura_bibliotecas.1",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     333421.2619586424,
+     7394534.460954394
+    ]
+   },
+   "properties": {
+    "nm_equipamento": "Biblioteca Fictícia Centro",
+    "tx_endereco": "Rua Fictícia, 100"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "equipamento_cultura_bibliotecas.2",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     336649.8096756011,
+     7398004.129565908
+    ]
+   },
+   "properties": {
+    "nm_equipamento": "Biblioteca Fictícia Norte",
+    "tx_endereco": "Av. Fictícia, 2000"
+   }
+  }
+ ]
+}

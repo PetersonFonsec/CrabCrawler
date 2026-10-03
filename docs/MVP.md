@@ -16,6 +16,10 @@
 | IBGE — API de Localidades e Agregados (SIDRA) | API oficial | código IBGE dos municípios, população do Censo 2022 | pronto |
 | SSP-SP — Dados Mensais | dataset oficial (exportação manual) | ocorrências por natureza, município e delegacia, por mês | importador de CSV pronto; sem API pública ([detalhes](SEGURANCA.md)) |
 | Sinesp VDE (MJSP) | planilha anual oficial | eventos criminais por município e mês | importador XLSX pronto, com download direto do gov.br |
+| IBGE — malha e agregados por setor (Censo 2022) | GeoPackage + CSV oficiais | perfil da região por setor censitário | importadores prontos ([detalhes](data-sources/IBGE.md)) |
+| Seade — IPVS 2022 | CSV oficial | vulnerabilidade social por setor | importador pronto, colunas a conferir ([detalhes](data-sources/SEADE.md)) |
+| GeoSampa (capital) | WFS oficial | equipamentos urbanos | importador pronto para as camadas confirmadas ([detalhes](data-sources/GEOSAMPA.md)) |
+| SGB — Setorização de Risco | API ArcGIS REST | áreas de risco (inclui SBC) | importador pronto ([detalhes](data-sources/SGB.md)) |
 
 **Sobre a fonte real de anúncios:** os grandes portais (ZAP, VivaReal, OLX,
 QuintoAndar) proíbem coleta automatizada nos termos de uso. Opções, em ordem
@@ -68,6 +72,7 @@ coletar dados públicos ─► mapear p/ região ─┘
 1. Escolher e implementar a fonte real de anúncios.
 2. Conferir os importadores de segurança contra arquivos reais e importar os
    microdados georreferenciados da SSP ([próximos passos](SEGURANCA.md#próximos-passos)).
-3. Importar malhas do IBGE e relacionar por coordenada (PostGIS).
+3. ~~Importar malhas do IBGE e relacionar por coordenada (PostGIS).~~ Feito no
+   [Regional Intelligence](REGIONAL.md); falta rodar com os arquivos reais.
 4. Estimativas anuais de população para a taxa por 100 mil de cada ano.
 5. Telas de busca, mapa e detalhe no frontend.

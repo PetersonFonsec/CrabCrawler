@@ -34,6 +34,14 @@ cargo run -- crawl ssp-sp            # fixtures/ssp_sp_sample.csv (amostra fict�
 cargo run -- crawl sinesp --file fixtures/sinesp_vde_sample.xlsx   # amostra fictícia
 cargo run -- crawl sinesp --year 2025 --ibge-gazetteer             # base real do gov.br
 cargo run -- crawl ibge              # população do Censo 2022 via API do IBGE
+
+# Regional Intelligence (detalhes em ../docs/REGIONAL.md); fixtures fictícias:
+cargo run -- crawl ibge-setores --file fixtures/regional/ibge_setores_sample.gpkg --scope 35
+cargo run -- crawl ibge-agregados --file fixtures/regional/ibge_agregados_basico_sample.zip --scope 35
+cargo run -- crawl seade-ipvs --file fixtures/regional/seade_ipvs_sample.csv --scope 35
+cargo run -- crawl sgb-risco --file fixtures/regional/sgb_risco_sample.geojson
+cargo run -- crawl geosampa --layer equipamento_cultura_bibliotecas --file fixtures/regional/geosampa_bibliotecas_sample.geojson
+# dados reais: crawl sgb-risco --municipality 3548708 | crawl geosampa | arquivos do IBGE/Seade
 cargo run -- serve
 ```
 
@@ -52,6 +60,15 @@ Segurança pública (detalhes em [`../docs/SEGURANCA.md`](../docs/SEGURANCA.md))
 - `GET /regions/{ibge_code}/security/history?crime_type=robbery`
 - `GET /security/compare?municipalities=3548708,3547809` ou `?listings=<id>,<id>`
 - `GET /security/sources`
+
+Regional Intelligence (detalhes em [`../docs/REGIONAL.md`](../docs/REGIONAL.md)):
+
+- `GET /listings/{id}/region` — perfil + serviços + riscos
+- `GET /listings/{id}/region/profile`
+- `GET /listings/{id}/region/services?radius=1000&category=HEALTH`
+- `GET /listings/{id}/region/risks?max_distance=2000&type=FLOOD`
+- `GET /listings/{id}/intelligence` — imóvel + região
+- `GET /regional/sources`
 
 ## Testes
 
