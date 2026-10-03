@@ -12,7 +12,9 @@
 | Fonte | Tipo | Uso no MVP | Status |
 |---|---|---|---|
 | Anúncios (fixture JSON) | arquivo local | desenvolver normalização, enriquecimento e API | pronto |
-| Anúncios (portal real) | a definir | primeira fonte real de anúncios | **decisão pendente** |
+| Cadastro manual | formulário `/analisar` + `POST /properties/manual` | usuário analisa um imóvel que encontrou | pronto ([detalhes](property-sources/MANUAL.md)) |
+| Feed VRSync de parceiro | XML autorizado pelo parceiro | estoque de imobiliárias e CRMs | importador pronto, testado com fixtures fictícias ([detalhes](property-sources/VRSYNC.md)) |
+| API de parceiro | API oficial | busca e sync incremental | só infraestrutura; nenhuma API confirmada ([detalhes](property-sources/API.md)) |
 | IBGE — API de Localidades e Agregados (SIDRA) | API oficial | código IBGE dos municípios, população do Censo 2022 | pronto |
 | SSP-SP — Dados Mensais | dataset oficial (exportação manual) | ocorrências por natureza, município e delegacia, por mês | importador de CSV pronto; sem API pública ([detalhes](SEGURANCA.md)) |
 | Sinesp VDE (MJSP) | planilha anual oficial | eventos criminais por município e mês | importador XLSX pronto, com download direto do gov.br |
@@ -24,8 +26,11 @@
 **Sobre a fonte real de anúncios:** os grandes portais (ZAP, VivaReal, OLX,
 QuintoAndar) proíbem coleta automatizada nos termos de uso. Opções, em ordem
 de preferência: (1) uma API ou feed autorizado; (2) site de imobiliária local
-cujo `robots.txt` e termos permitam; (3) anúncios inseridos manualmente. A
-fonte entra como mais uma implementação de `ListingSource`, sem mudar o resto.
+cujo `robots.txt` e termos permitam; (3) anúncios inseridos manualmente.
+Decisão (2026-10): sem scraping de portal. As fontes são cadastro manual,
+feeds VRSync de parceiros e, depois de confirmadas, APIs oficiais e CRMs,
+cada uma como um `PropertySourceProvider`
+([arquitetura](property-sources/ARCHITECTURE.md)).
 
 **Próximos datasets candidatos:** malhas de setores censitários e bairros
 (IBGE), escolas (Censo Escolar/INEP), estabelecimentos de saúde (CNES),
@@ -69,7 +74,8 @@ coletar dados públicos ─► mapear p/ região ─┘
 
 ## Próximos passos
 
-1. Escolher e implementar a fonte real de anúncios.
+1. ~~Escolher a fonte real de anúncios.~~ [Property Sources](property-sources/ARCHITECTURE.md);
+   falta o primeiro feed VRSync de um parceiro real.
 2. Conferir os importadores de segurança contra arquivos reais e importar os
    microdados georreferenciados da SSP ([próximos passos](SEGURANCA.md#próximos-passos)).
 3. ~~Importar malhas do IBGE e relacionar por coordenada (PostGIS).~~ Feito no

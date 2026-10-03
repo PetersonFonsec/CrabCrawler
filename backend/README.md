@@ -13,8 +13,9 @@ O plano do MVP está em [`../docs/MVP.md`](../docs/MVP.md).
 | `crab-crawler` | Fontes de dados. Cliente HTTP com rate limiting, retry com backoff e logs. |
 | `crab-processing` | Normalização de localização (texto → município/bairro/código IBGE) e enriquecimento. |
 | `crab-persistence` | PostgreSQL/PostGIS via sqlx, migrations e repositórios. |
+| `crab-ingest` | Ingestão de imóveis: normalizar → completar endereço → geocodificar → gravar; jobs de sincronização por parceiro. |
 | `crab-api` | API HTTP em Axum. |
-| `crabcrawler` (`crates/app`) | Binário único com CLI: `migrate`, `crawl`, `serve`. |
+| `crabcrawler` (`crates/app`) | Binário único com CLI: `migrate`, `crawl`, `serve`, `partner`, `sync`, `sync-runs`. |
 
 Dependências apontam sempre para o domínio; só o binário conhece todos os
 crates. Separar crawler ou processamento em serviços no futuro é questão de
@@ -42,7 +43,14 @@ cargo run -- crawl seade-ipvs --file fixtures/regional/seade_ipvs_sample.csv --s
 cargo run -- crawl sgb-risco --file fixtures/regional/sgb_risco_sample.geojson
 cargo run -- crawl geosampa --layer equipamento_cultura_bibliotecas --file fixtures/regional/geosampa_bibliotecas_sample.geojson
 # dados reais: crawl sgb-risco --municipality 3548708 | crawl geosampa | arquivos do IBGE/Seade
-cargo run -- serve
+# Property Sources (detalhes em ../docs/property-sources/ARCHITECTURE.md)
+cargo run -- sync vrsync --file fixtures/vrsync/feed_v1.xml   # feed fictício
+cargo run -- partner add --slug parceiro-a --name "Imobiliária A" --type REAL_ESTATE_AGENCY \
+  --feed-url https://parceiro.example/vrsync.xml --authorization-env PARCEIRO_A_FEED_AUTH
+cargo run -- sync properties --partner parceiro-a
+cargo run -- sync-runs --limit 5
+
+cargo run -- serve   # ADDRESS_LOOKUP=viacep, GEOCODER=nominatim e NOMINATIM_EMAIL ligam o enriquecimento
 ```
 
 ## Endpoints
@@ -52,6 +60,16 @@ cargo run -- serve
 - `GET /listings?municipality_ibge_code=3548708&neighborhood=rudge-ramos&transaction=sale&min_bedrooms=2&max_price=600000`
 - `GET /listings/{id}` — imóvel + comparação de preço/m² no bairro + indicadores da região
 - `GET /regions/{ibge_code}/indicators`
+
+Imóveis e anúncios (detalhes em [`../docs/property-sources/`](../docs/property-sources/ARCHITECTURE.md)):
+
+- `POST /properties/manual` — cadastro manual (422 com erros por campo)
+- `GET /properties?municipality_ibge_code=&neighborhood=&property_type=&transaction=&source=&status=&min_bedrooms=&max_price=`
+- `GET /properties/{id}` — imóvel, anúncios, histórico de preço e comparação
+- `GET /properties/{id}/listings`
+- `GET /properties/{id}/region` e `GET /properties/{id}/intelligence`
+
+Parceiros e sincronizações não têm rota HTTP: só pela CLI.
 
 Segurança pública (detalhes em [`../docs/SEGURANCA.md`](../docs/SEGURANCA.md)):
 
