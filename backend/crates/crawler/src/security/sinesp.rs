@@ -195,7 +195,8 @@ pub(crate) fn parse_rows(
         parsed.total_rows += 1;
         let err = |msg: &str| CrawlError::Parse(format!("linha {}: {msg}", row_no + 1));
 
-        let Some(municipality) = text(get(c_mun)) else {
+        // Linhas estaduais vêm com município em branco ou "NÃO INFORMADO".
+        let Some(municipality) = text(get(c_mun)).filter(|m| !is_unspecified(m)) else {
             parsed.state_level_rows += 1;
             continue;
         };
@@ -230,6 +231,13 @@ pub(crate) fn parse_rows(
         });
     }
     Ok(parsed)
+}
+
+fn is_unspecified(municipality: &str) -> bool {
+    matches!(
+        municipality.trim().to_uppercase().as_str(),
+        "NÃO INFORMADO" | "NAO INFORMADO"
+    )
 }
 
 fn text(cell: &Cell) -> Option<String> {
@@ -350,6 +358,14 @@ mod tests {
             ),
             row(
                 "SP",
+                "NÃO INFORMADO",
+                "Roubo de veículo",
+                d.clone(),
+                Cell::Empty,
+                Cell::Number(2312.0),
+            ),
+            row(
+                "SP",
                 "DIADEMA",
                 "Estupro",
                 t("01/03/2025"),
@@ -358,8 +374,8 @@ mod tests {
             ),
         ];
         let parsed = parse_rows(rows, "u", "bancovde-2025.xlsx", Utc::now()).unwrap();
-        assert_eq!(parsed.total_rows, 4);
-        assert_eq!(parsed.state_level_rows, 1);
+        assert_eq!(parsed.total_rows, 5);
+        assert_eq!(parsed.state_level_rows, 2);
         assert_eq!(parsed.empty_rows, 1);
         assert_eq!(parsed.records.len(), 2);
         let homicide = &parsed.records[0];
