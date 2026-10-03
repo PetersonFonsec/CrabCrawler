@@ -31,6 +31,8 @@ export $(cat .env | xargs)
 cargo run -- migrate
 cargo run -- crawl listings          # fixtures/listings.json
 cargo run -- crawl ssp-sp            # fixtures/ssp_sp_sample.csv (amostra fictícia)
+cargo run -- crawl sinesp --file fixtures/sinesp_vde_sample.xlsx   # amostra fictícia
+cargo run -- crawl sinesp --year 2025 --ibge-gazetteer             # base real do gov.br
 cargo run -- crawl ibge              # população do Censo 2022 via API do IBGE
 cargo run -- serve
 ```
@@ -43,9 +45,21 @@ cargo run -- serve
 - `GET /listings/{id}` — imóvel + comparação de preço/m² no bairro + indicadores da região
 - `GET /regions/{ibge_code}/indicators`
 
+Segurança pública (detalhes em [`../docs/SEGURANCA.md`](../docs/SEGURANCA.md)):
+
+- `GET /listings/{id}/security`
+- `GET /regions/{ibge_code}/security?year=2025` (`&level=police_district&code=...` para delegacia)
+- `GET /regions/{ibge_code}/security/history?crime_type=robbery`
+- `GET /security/compare?municipalities=3548708,3547809` ou `?listings=<id>,<id>`
+- `GET /security/sources`
+
 ## Testes
 
 ```bash
 cargo test
 cargo clippy --all-targets
+cargo fmt --all --check
+
+# teste de ponta a ponta (fixtures → banco → API) num banco descartável com PostGIS
+TEST_DATABASE_URL=postgres://crab:crab@localhost:5432/crabcrawler_test cargo test -p crab-api
 ```

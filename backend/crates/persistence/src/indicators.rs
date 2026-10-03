@@ -3,6 +3,8 @@ use crab_domain::RegionIndicator;
 use serde::Serialize;
 use sqlx::{FromRow, PgPool};
 
+use crate::upsert_region;
+
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct IndicatorRow {
     pub region_level: String,
@@ -29,17 +31,7 @@ impl IndicatorRepository {
 
     pub async fn upsert(&self, item: &RegionIndicator) -> Result<(), sqlx::Error> {
         let mut tx = self.pool.begin().await?;
-        let (region_id,): (i64,) = sqlx::query_as(
-            "INSERT INTO regions (level, code, name, municipality_ibge_code) VALUES ($1,$2,$3,$4) \
-             ON CONFLICT (level, code, municipality_ibge_code) DO UPDATE SET name = EXCLUDED.name \
-             RETURNING id",
-        )
-        .bind(item.region.level.as_str())
-        .bind(&item.region.code)
-        .bind(&item.region.name)
-        .bind(&item.region.municipality_ibge_code)
-        .fetch_one(&mut *tx)
-        .await?;
+        let region_id = upsert_region(&mut tx, &item.region).await?;
 
         sqlx::query(
             "INSERT INTO region_indicators (region_id, kind, value, period_start, period_end, \

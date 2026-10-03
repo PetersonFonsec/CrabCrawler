@@ -16,6 +16,7 @@ crab-domain.workspace = true
 crab-persistence.workspace = true
 crab-processing.workspace = true
 anyhow.workspace = true
+serde_json.workspace = true
 axum.workspace = true
 sqlx.workspace = true
 clap.workspace = true

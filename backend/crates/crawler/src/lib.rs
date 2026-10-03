@@ -6,9 +6,11 @@
 
 pub mod error;
 pub mod http;
+pub mod security;
 pub mod sources;
 
 pub use error::CrawlError;
+pub use security::{SecurityDataProvider, SecurityScope};
 
 use async_trait::async_trait;
 use crab_domain::{RawListing, RegionIndicator};

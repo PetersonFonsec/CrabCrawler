@@ -16,12 +16,7 @@ pub async fn health() -> Json<Value> {
 
 /// Lista as fontes de dados, para a interface explicar a origem de cada dado.
 pub async fn sources() -> Json<Value> {
-    let all = [
-        DataSource::ListingFixture,
-        DataSource::IbgeLocalidades,
-        DataSource::SspSp,
-    ];
-    Json(json!(all
+    Json(json!(DataSource::ALL
         .iter()
         .map(|s| json!({ "id": s.as_str(), "reference_url": s.reference_url() }))
         .collect::<Vec<_>>()))

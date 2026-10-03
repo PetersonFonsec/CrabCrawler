@@ -44,13 +44,22 @@ impl HttpClient {
     }
 
     pub async fn get_text(&self, url: &str) -> Result<String, CrawlError> {
+        Ok(self.send(url).await?.text().await?)
+    }
+
+    /// Download binário (planilhas XLSX, por exemplo).
+    pub async fn get_bytes(&self, url: &str) -> Result<Vec<u8>, CrawlError> {
+        Ok(self.send(url).await?.bytes().await?.to_vec())
+    }
+
+    async fn send(&self, url: &str) -> Result<reqwest::Response, CrawlError> {
         let mut attempt = 0;
         loop {
             self.wait_turn().await;
             tracing::debug!(url, attempt, "GET");
             let result = self.inner.get(url).send().await;
             let retryable = match result {
-                Ok(resp) if resp.status().is_success() => return Ok(resp.text().await?),
+                Ok(resp) if resp.status().is_success() => return Ok(resp),
                 Ok(resp) => {
                     let status = resp.status();
                     if !is_retryable(status) || attempt >= self.max_retries {

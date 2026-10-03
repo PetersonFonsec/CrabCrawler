@@ -3,8 +3,10 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
 
+#[derive(Debug)]
 pub enum ApiError {
     NotFound,
+    BadRequest(String),
     Internal,
 }
 
@@ -19,6 +21,7 @@ impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let (status, message) = match self {
             Self::NotFound => (StatusCode::NOT_FOUND, "não encontrado".to_string()),
+            Self::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             Self::Internal => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "erro interno".to_string(),
