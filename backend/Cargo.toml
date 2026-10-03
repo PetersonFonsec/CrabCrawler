@@ -5,6 +5,7 @@ members = [
     "crates/crawler",
     "crates/processing",
     "crates/persistence",
+    "crates/ingest",
     "crates/api",
     "crates/app",
 ]
@@ -22,6 +23,7 @@ crab-crawler = { path = "crates/crawler" }
 crab-processing = { path = "crates/processing" }
 crab-persistence = { path = "crates/persistence" }
 crab-api = { path = "crates/api" }
+crab-ingest = { path = "crates/ingest" }
 
 # externos
 anyhow = "1"
@@ -43,5 +45,7 @@ tower-http = { version = "0.6", features = ["trace", "cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 unicode-normalization = "0.1"
+url = "2"
+quick-xml = "0.41"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 uuid = { version = "1", features = ["v4", "v5", "serde"] }

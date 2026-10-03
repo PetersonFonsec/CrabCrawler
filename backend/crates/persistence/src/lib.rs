@@ -5,11 +5,17 @@
 
 pub mod indicators;
 pub mod listings;
+pub mod properties;
 pub mod regional;
 pub mod security;
 
 pub use indicators::{IndicatorRepository, IndicatorRow};
 pub use listings::{ListingFilter, ListingRepository, ListingRow};
+pub use properties::{
+    ExistingListing, GeocodeCacheRow, GroupWriteResult, ListingGroupWrite, ListingWriteResult,
+    PropertyFilter, PropertyListingRow, PropertyRepository, PropertyRow, SyncRunFinish, SyncRunRow,
+    WriteOutcome,
+};
 pub use regional::{
     DatasetCoverageRow, DatasetRef, RegionalImportRow, RegionalRepository, RiskAreaRow,
     SectorIndicatorRow, SectorRow, ServiceRow, StoreOutcome,
@@ -31,13 +37,6 @@ pub async fn connect(database_url: &str) -> Result<PgPool, sqlx::Error> {
 
 pub async fn migrate(pool: &PgPool) -> Result<(), sqlx::migrate::MigrateError> {
     sqlx::migrate!("../../migrations").run(pool).await
-}
-
-pub(crate) fn enum_str<T: serde::Serialize>(value: &T) -> String {
-    serde_json::to_value(value)
-        .ok()
-        .and_then(|v| v.as_str().map(str::to_string))
-        .unwrap_or_default()
 }
 
 /// Insere ou encontra uma região e devolve o id. Um nome igual ao código

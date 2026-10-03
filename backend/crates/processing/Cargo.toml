@@ -10,6 +10,9 @@ crab-domain.workspace = true
 chrono.workspace = true
 serde.workspace = true
 unicode-normalization.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+url.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
-serde_json.workspace = true

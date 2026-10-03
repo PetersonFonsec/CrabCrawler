@@ -20,9 +20,10 @@ use crab_domain::regional::{
     ServiceCategory, UrbanService,
 };
 use crab_domain::{DataSource, ListingKind, RawListing, TransactionType};
-use crab_persistence::{ListingRepository, RegionalRepository};
+use crab_ingest::PropertyIngestor;
+use crab_persistence::{PropertyRepository, RegionalRepository};
 use crab_processing::regional::{normalize_risk_areas, normalize_sector_values, normalize_sectors};
-use crab_processing::{normalize_listing, Gazetteer};
+use crab_processing::{Gazetteer, PropertyNormalizer};
 use serde_json::Value;
 use tower::ServiceExt;
 use uuid::Uuid;
@@ -86,7 +87,7 @@ async fn import_fixtures(repo: &RegionalRepository) {
 }
 
 async fn listing(
-    repo: &ListingRepository,
+    ingestor: &PropertyIngestor,
     id: &str,
     text: &str,
     point: Option<(f64, f64)>,
@@ -107,11 +108,9 @@ async fn listing(
         lat: point.map(|p| p.0),
         lon: point.map(|p| p.1),
     };
-    let mut gazetteer = Gazetteer::mvp();
-    gazetteer.insert("SP", "São Paulo", geosampa::SAO_PAULO);
-    let l = normalize_listing(raw, DataSource::ListingFixture, &gazetteer);
-    repo.upsert(&l).await.unwrap();
-    l.id
+    let raw = crab_ingest::fixture::to_raw_property(raw);
+    let outcome = ingestor.ingest(raw, Utc::now()).await.unwrap();
+    outcome.listings[0].listing_id
 }
 
 async fn get(app: &axum::Router, uri: &str) -> (StatusCode, Value) {
@@ -151,7 +150,12 @@ async fn regional_intelligence_end_to_end() {
     let repo = RegionalRepository::new(pool.clone());
     import_fixtures(&repo).await;
 
-    let listings = ListingRepository::new(pool.clone());
+    let mut gazetteer = Gazetteer::mvp();
+    gazetteer.insert("SP", "São Paulo", geosampa::SAO_PAULO);
+    let listings = PropertyIngestor::new(
+        PropertyRepository::new(pool.clone()),
+        PropertyNormalizer::new(gazetteer),
+    );
     let sbc = "São Bernardo do Campo - SP / Rudge Ramos";
     let rudge = listing(&listings, "rt-rudge", sbc, Some((-23.656, -46.573))).await;
     let suppressed = listing(&listings, "rt-sigilo", sbc, Some((-23.656, -46.567))).await;

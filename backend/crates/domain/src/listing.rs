@@ -11,13 +11,72 @@ pub enum TransactionType {
     Rent,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+impl TransactionType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Sale => "sale",
+            Self::Rent => "rent",
+        }
+    }
+}
+
+/// Tipo do imóvel físico. Valores de cada fonte ("Residential / Apartment",
+/// "apto"...) são convertidos pelo normalizer; o texto original fica no
+/// anúncio.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ListingKind {
+pub enum PropertyType {
     Apartment,
     House,
+    /// Casa em condomínio fechado.
+    CondoHouse,
+    Penthouse,
+    /// Studio, kitnet, loft.
+    Studio,
+    Flat,
+    Land,
+    Commercial,
+    Rural,
+    #[default]
     Other,
 }
+
+impl PropertyType {
+    pub const ALL: [PropertyType; 10] = [
+        Self::Apartment,
+        Self::House,
+        Self::CondoHouse,
+        Self::Penthouse,
+        Self::Studio,
+        Self::Flat,
+        Self::Land,
+        Self::Commercial,
+        Self::Rural,
+        Self::Other,
+    ];
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Apartment => "apartment",
+            Self::House => "house",
+            Self::CondoHouse => "condo_house",
+            Self::Penthouse => "penthouse",
+            Self::Studio => "studio",
+            Self::Flat => "flat",
+            Self::Land => "land",
+            Self::Commercial => "commercial",
+            Self::Rural => "rural",
+            Self::Other => "other",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|t| t.as_str() == value)
+    }
+}
+
+/// Nome antigo de [`PropertyType`], mantido para o fixture de anúncios.
+pub type ListingKind = PropertyType;
 
 /// Anúncio como veio da fonte, antes de qualquer normalização.
 ///

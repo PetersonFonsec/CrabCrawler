@@ -1,0 +1,23 @@
+[package]
+name = "crab-ingest"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+crab-domain.workspace = true
+crab-crawler.workspace = true
+crab-persistence.workspace = true
+crab-processing.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+async-trait.workspace = true
+tokio.workspace = true

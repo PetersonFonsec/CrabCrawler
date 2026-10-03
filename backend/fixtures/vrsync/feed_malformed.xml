@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feed FICTÍCIO para testes. Estrutura segue o exemplo oficial do VRSync
+     (developers.grupozap.com/feeds/vrsync/examples.html); endereços, preços e
+     imobiliária são inventados. -->
+<ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.vivareal.com/schemas/1.0/VRSync  http://xml.vivareal.com/vrsync.xsd">
+  <Header>
+    <Provider>Imobiliária Exemplo (fictícia)</Provider>
+    <Email>feed@exemplo.invalid</Email>
+    <ContactName>Imobiliária Exemplo</ContactName>
+    <PublishDate>2026-10-03T08:00:00</PublishDate>
+    <Telephone>11-0000 0000</Telephone>
+  </Header>
+  <Listings>
+    <Listing>
+      <ListingID>SBC-001</ListingID>
+      <Title>sem fechamento
+  </Listings>
+</ListingDataFeed>

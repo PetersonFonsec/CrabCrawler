@@ -39,6 +39,8 @@ pub enum Availability {
 pub enum NoDataReason {
     /// O anúncio não tem latitude/longitude; não usamos centroide de bairro.
     PropertyWithoutCoordinates,
+    /// A coordenada é do CEP ou do bairro: não serve para análise por ponto.
+    PropertyCoordinatesApproximate,
     PropertyWithoutMunicipality,
     /// Nenhum provider conhecido cobre este município para este dado.
     NoProviderForLocation,
@@ -57,6 +59,10 @@ impl NoDataReason {
         match self {
             Self::PropertyWithoutCoordinates => {
                 "O anúncio não tem coordenadas; sem elas não há análise geoespacial."
+            }
+            Self::PropertyCoordinatesApproximate => {
+                "A coordenada do imóvel é aproximada (CEP ou bairro); a análise por ponto \
+                 exige a coordenada do endereço."
             }
             Self::PropertyWithoutMunicipality => "O município do anúncio não foi identificado.",
             Self::NoProviderForLocation => {
@@ -141,24 +147,32 @@ impl From<DatasetCoverageRow> for SourceRef {
 #[derive(Debug, Clone, Serialize)]
 pub struct PropertyLocation {
     pub listing_id: Uuid,
+    pub property_id: Uuid,
     pub lat: Option<f64>,
     pub lon: Option<f64>,
     pub municipality: Option<String>,
     pub municipality_ibge_code: Option<String>,
     pub neighborhood: Option<String>,
     pub postal_code: Option<String>,
+    /// De onde veio a coordenada (fonte, geocoding, manual...).
+    pub coordinate_source: Option<String>,
+    /// `EXACT`, `STREET`, `POSTAL_CODE`, `APPROXIMATE` ou `REPORTED`.
+    pub coordinate_precision: Option<String>,
 }
 
 impl From<&ListingRow> for PropertyLocation {
     fn from(l: &ListingRow) -> Self {
         Self {
             listing_id: l.id,
+            property_id: l.property_id,
             lat: l.lat,
             lon: l.lon,
             municipality: l.municipality.clone(),
             municipality_ibge_code: l.municipality_ibge_code.clone(),
             neighborhood: l.neighborhood.clone(),
             postal_code: l.postal_code.clone(),
+            coordinate_source: l.coordinate_source.clone(),
+            coordinate_precision: l.coordinate_precision.clone(),
         }
     }
 }
@@ -174,6 +188,12 @@ fn anchor(listing: &ListingRow) -> Result<Anchor, NoDataReason> {
     let (Some(lat), Some(lon)) = (listing.lat, listing.lon) else {
         return Err(NoDataReason::PropertyWithoutCoordinates);
     };
+    if matches!(
+        listing.coordinate_precision.as_deref(),
+        Some("POSTAL_CODE") | Some("APPROXIMATE")
+    ) {
+        return Err(NoDataReason::PropertyCoordinatesApproximate);
+    }
     let municipality = listing
         .municipality_ibge_code
         .clone()
@@ -799,6 +819,41 @@ pub async fn listing_intelligence(
     Path(id): Path<Uuid>,
 ) -> Result<Json<IntelligenceResponse>, ApiError> {
     let listing = load_listing(&state, id).await?;
+    let region = build_region(&state, &listing).await?;
+    Ok(Json(IntelligenceResponse {
+        property: listing,
+        region,
+    }))
+}
+
+/// Anúncio principal do imóvel, usado como âncora das análises. A origem
+/// do anúncio não muda nada: só coordenada e município importam.
+async fn load_property_anchor(state: &AppState, property_id: Uuid) -> Result<ListingRow, ApiError> {
+    state
+        .listings
+        .primary_for_property(property_id)
+        .await?
+        .ok_or(ApiError::NotFound)
+}
+
+/// `GET /properties/{id}/region`
+pub async fn property_region(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<RegionResponse>, ApiError> {
+    let listing = load_property_anchor(&state, id).await?;
+    Ok(Json(RegionResponse {
+        property: (&listing).into(),
+        region: build_region(&state, &listing).await?,
+    }))
+}
+
+/// `GET /properties/{id}/intelligence`
+pub async fn property_intelligence(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<IntelligenceResponse>, ApiError> {
+    let listing = load_property_anchor(&state, id).await?;
     let region = build_region(&state, &listing).await?;
     Ok(Json(IntelligenceResponse {
         property: listing,

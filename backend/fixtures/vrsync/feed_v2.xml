@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feed FICTÍCIO para testes. Estrutura segue o exemplo oficial do VRSync
+     (developers.grupozap.com/feeds/vrsync/examples.html); endereços, preços e
+     imobiliária são inventados. -->
+<ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.vivareal.com/schemas/1.0/VRSync  http://xml.vivareal.com/vrsync.xsd">
+  <Header>
+    <Provider>Imobiliária Exemplo (fictícia)</Provider>
+    <Email>feed@exemplo.invalid</Email>
+    <ContactName>Imobiliária Exemplo</ContactName>
+    <PublishDate>2026-10-02T08:00:00</PublishDate>
+    <Telephone>11-0000 0000</Telephone>
+  </Header>
+  <Listings>
+    <Listing>
+      <ListingID>SBC-001</ListingID>
+      <Title><![CDATA[Apartamento 2 dormitórios perto da Metodista]]></Title>
+      <TransactionType>For Sale</TransactionType>
+      <PublicationType>STANDARD</PublicationType>
+      <DetailViewUrl>https://imobiliaria.exemplo.invalid/imoveis/sbc-001</DetailViewUrl>
+      <Media>
+        <Item medium="image" caption="sala">https://imobiliaria.exemplo.invalid/fotos/foto02.jpg</Item>
+        <Item medium="image" caption="fachada" primary="true">https://imobiliaria.exemplo.invalid/fotos/foto01.jpg</Item>
+        <Item medium="video">https://www.youtube.com/watch?v=exemplo</Item>
+      </Media>
+      <Details>
+        <UsageType>Residential</UsageType>
+        <PropertyType>Residential / Apartment</PropertyType>
+        <Description><![CDATA[Apartamento fictício de 80 m² com 2 dormitórios, 1 suíte e 1 vaga, perto da Universidade Metodista. Texto de exemplo para testes do CrabCrawler.]]></Description>
+        <ListPrice currency="BRL">590000</ListPrice>
+        <PropertyAdministrationFee currency="BRL">650</PropertyAdministrationFee>
+        <YearlyTax currency="BRL">1800</YearlyTax>
+        <LivingArea unit="square metres">80</LivingArea>
+        <Bedrooms>2</Bedrooms>
+        <Bathrooms>2</Bathrooms>
+        <Suites>1</Suites>
+        <Garage type="Parking Space">1</Garage>
+      </Details>
+      <Location displayAddress="All">
+        <Country abbreviation="BR">Brasil</Country>
+        <State abbreviation="SP">Sao Paulo</State>
+        <City>São Bernardo do Campo</City>
+        <Neighborhood>Rudge Ramos</Neighborhood>
+        <Address>Rua Exemplo</Address>
+        <StreetNumber>100</StreetNumber>
+        <Complement>Apto 12</Complement>
+        <PostalCode>09640-000</PostalCode>
+        <Latitude>-23.6560</Latitude>
+        <Longitude>-46.5730</Longitude>
+      </Location>
+      <ContactInfo>
+        <Name>Imobiliária Exemplo</Name>
+        <Email>contato@exemplo.invalid</Email>
+      </ContactInfo>
+    </Listing>
+    <Listing>
+      <ListingID>SBC-002</ListingID>
+      <Title>Casa térrea com quintal no Centro</Title>
+      <TransactionType>Sale/Rent</TransactionType>
+      <Details>
+        <PropertyType>Residential / Home</PropertyType>
+        <Description><![CDATA[Casa fictícia de 150 m² com 3 dormitórios e quintal. Texto de exemplo para testes do CrabCrawler &amp; nada mais.]]></Description>
+        <ListPrice currency="BRL">690000</ListPrice>
+        <RentalPrice currency="BRL" period="Monthly">3800</RentalPrice>
+        <PropertyAdministrationFee currency="BRL">0</PropertyAdministrationFee>
+        <Iptu currency="BRL" period="Monthly">150</Iptu>
+        <LivingArea unit="square metres">150</LivingArea>
+        <LotArea unit="square metres">250</LotArea>
+        <Bedrooms>3</Bedrooms>
+        <Bathrooms>2</Bathrooms>
+        <Garage type="Parking Space">2</Garage>
+      </Details>
+      <Location displayAddress="All">
+        <Country abbreviation="BR">Brasil</Country>
+        <State abbreviation="SP">Sao Paulo</State>
+        <City>São Bernardo do Campo</City>
+        <Neighborhood>Centro</Neighborhood>
+        <Address>Rua Fictícia</Address>
+        <StreetNumber>200</StreetNumber>
+        <PostalCode>09715-000</PostalCode>
+        <Latitude>-23.7120</Latitude>
+        <Longitude>-46.5510</Longitude>
+      </Location>
+      <ContactInfo>
+        <Name>Imobiliária Exemplo</Name>
+        <Email>contato@exemplo.invalid</Email>
+      </ContactInfo>
+    </Listing>
+    <Listing>
+      <ListingID>SBC-004</ListingID>
+      <Title>Cobertura no Rudge Ramos</Title>
+      <TransactionType>For Sale</TransactionType>
+      <Details>
+        <PropertyType>Residential / Penthouse</PropertyType>
+        <ListPrice currency="BRL">980000</ListPrice>
+        <LivingArea unit="square metres">140</LivingArea>
+        <Bedrooms>3</Bedrooms>
+      </Details>
+      <Location displayAddress="All">
+        <Country abbreviation="BR">Brasil</Country>
+        <State abbreviation="SP">Sao Paulo</State>
+        <City>São Bernardo do Campo</City>
+        <Neighborhood>Rudge Ramos</Neighborhood>
+        <PostalCode>09640-000</PostalCode>
+        <Latitude>-23.6570</Latitude>
+        <Longitude>-46.5740</Longitude>
+      </Location>
+    </Listing>
+    <Listing>
+      <ListingID>SBC-005</ListingID>
+      <Title>Preço em dólar (inválido)</Title>
+      <TransactionType>For Sale</TransactionType>
+      <Details><PropertyType>Residential / Apartment</PropertyType><ListPrice currency="USD">100000</ListPrice></Details>
+      <Location><State abbreviation="SP">Sao Paulo</State><City>São Bernardo do Campo</City><PostalCode>09640-000</PostalCode></Location>
+    </Listing>
+  </Listings>
+</ListingDataFeed>

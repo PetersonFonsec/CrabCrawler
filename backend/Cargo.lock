@@ -416,10 +416,12 @@ dependencies = [
 name = "crab-api"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "axum",
  "chrono",
  "crab-crawler",
  "crab-domain",
+ "crab-ingest",
  "crab-persistence",
  "crab-processing",
  "serde",
@@ -437,9 +439,11 @@ name = "crab-crawler"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "axum",
  "calamine",
  "chrono",
  "crab-domain",
+ "quick-xml",
  "reqwest",
  "rusqlite",
  "serde",
@@ -448,6 +452,8 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
+ "url",
+ "uuid",
  "zip 2.4.2",
 ]
 
@@ -458,6 +464,25 @@ dependencies = [
  "chrono",
  "serde",
  "serde_json",
+ "uuid",
+]
+
+[[package]]
+name = "crab-ingest"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "crab-crawler",
+ "crab-domain",
+ "crab-persistence",
+ "crab-processing",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tokio",
+ "tracing",
  "uuid",
 ]
 
@@ -482,7 +507,10 @@ dependencies = [
  "crab-domain",
  "serde",
  "serde_json",
+ "sha2",
  "unicode-normalization",
+ "url",
+ "uuid",
 ]
 
 [[package]]
@@ -491,10 +519,12 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "chrono",
  "clap",
  "crab-api",
  "crab-crawler",
  "crab-domain",
+ "crab-ingest",
  "crab-persistence",
  "crab-processing",
  "serde_json",
@@ -502,6 +532,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

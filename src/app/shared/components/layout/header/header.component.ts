@@ -33,11 +33,12 @@ export class HeaderComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
 
   readonly links: NavLink[] = [
-    { label: 'Como funciona', href: '#como-funciona' },
-    { label: 'Indicadores', href: '#indicadores' },
-    { label: 'Comparar', href: '#comparar' },
-    { label: 'Fontes', href: '#fontes' },
-    { label: 'Dúvidas', href: '#duvidas' },
+    { label: 'Como funciona', href: '/#como-funciona' },
+    { label: 'Indicadores', href: '/#indicadores' },
+    { label: 'Comparar', href: '/#comparar' },
+    { label: 'Fontes', href: '/#fontes' },
+    { label: 'Dúvidas', href: '/#duvidas' },
+    { label: 'Analisar imóvel', href: '/analisar' },
   ];
 
   readonly hidden = signal(false);

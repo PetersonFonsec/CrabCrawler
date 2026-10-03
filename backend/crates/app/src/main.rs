@@ -6,7 +6,11 @@ use std::time::Duration;
 
 use anyhow::Context;
 use clap::{Parser, Subcommand};
+use crab_crawler::geocoding::nominatim::Nominatim;
+use crab_crawler::geocoding::viacep::ViaCep;
 use crab_crawler::http::HttpClient;
+use crab_crawler::http::HttpOptions;
+use crab_crawler::property_sources::vrsync::{validate_feed_url, VrsyncInput, VrsyncProvider};
 use crab_crawler::regional::geosampa::{self, GeoSampaInput, GeoSampaProvider};
 use crab_crawler::regional::ibge::{IbgeBasicAggregatesProvider, IbgeSectorMeshProvider};
 use crab_crawler::regional::raw::RawStore;
@@ -18,17 +22,19 @@ use crab_crawler::regional::{
 };
 use crab_crawler::security::sinesp::{SinespVdeProvider, VdeInput};
 use crab_crawler::security::ssp_sp::SspSpCsvProvider;
-use crab_crawler::sources::{fixture::FixtureListingSource, ibge::IbgeClient};
-use crab_crawler::{IndicatorSource, ListingSource, SecurityDataProvider, SecurityScope};
+use crab_crawler::sources::ibge::IbgeClient;
+use crab_crawler::{IndicatorSource, SecurityDataProvider, SecurityScope};
 use crab_domain::regional::{DatasetProvenance, ImportReport};
-use crab_domain::DataSource;
+use crab_domain::{PartnerStatus, PartnerType, PropertySource, PropertySourcePartner};
+use crab_ingest::fixture::FixtureProvider;
+use crab_ingest::{PropertyIngestor, SyncOptions, SyncReport};
 use crab_persistence::{
-    DatasetImport, IndicatorRepository, ListingRepository, RegionalRepository, SecurityRepository,
+    DatasetImport, IndicatorRepository, PropertyRepository, RegionalRepository, SecurityRepository,
     StoreOutcome,
 };
 use crab_processing::regional::{normalize_risk_areas, normalize_sector_values, normalize_sectors};
 use crab_processing::security::normalize_crime_records;
-use crab_processing::{normalize_listing, Gazetteer};
+use crab_processing::{Gazetteer, PropertyNormalizer};
 use tracing_subscriber::EnvFilter;
 
 /// Código IBGE de São Bernardo do Campo - SP, região do MVP.
@@ -60,6 +66,101 @@ enum Command {
     Serve {
         #[arg(long, env = "API_ADDR", default_value = "0.0.0.0:3000")]
         addr: String,
+        #[command(flatten)]
+        enrichment: Enrichment,
+    },
+    /// Parceiros que fornecem imóveis (imobiliárias, corretores, CRMs).
+    Partner {
+        #[command(subcommand)]
+        action: PartnerAction,
+    },
+    /// Sincroniza imóveis de um parceiro ou de um feed local.
+    Sync {
+        #[command(subcommand)]
+        target: SyncTarget,
+    },
+    /// Últimas sincronizações de imóveis, com métricas.
+    SyncRuns {
+        #[arg(long, default_value_t = 20)]
+        limit: i64,
+    },
+}
+
+/// Enriquecimento de endereço (opcional). Os dois serviços são externos e
+/// recebem o endereço do imóvel, por isso ficam desligados por padrão.
+#[derive(clap::Args, Clone)]
+struct Enrichment {
+    /// Completa endereço pelo CEP: `viacep` ou `none`.
+    #[arg(long, env = "ADDRESS_LOOKUP", default_value = "none")]
+    address_lookup: String,
+    /// Endereço → coordenada: `nominatim` ou `none`.
+    #[arg(long, env = "GEOCODER", default_value = "none")]
+    geocoder: String,
+    /// E-mail de contato enviado ao Nominatim (recomendado pela política).
+    #[arg(long, env = "NOMINATIM_EMAIL")]
+    nominatim_email: Option<String>,
+    /// Intervalo entre consultas ao Nominatim. A política pede no máximo 1/s,
+    /// e 4/min para scripts recorrentes (use 15000 em sincronizações).
+    #[arg(long, env = "GEOCODER_MIN_INTERVAL_MS", default_value_t = 1100)]
+    geocoder_min_interval_ms: u64,
+}
+
+#[derive(Subcommand)]
+enum PartnerAction {
+    /// Cadastra um parceiro. Credenciais nunca vão para o banco: informe só
+    /// o NOME da variável de ambiente que guarda o cabeçalho de autorização.
+    Add {
+        /// Identificador curto: letras minúsculas, números e hífen.
+        #[arg(long)]
+        slug: String,
+        #[arg(long)]
+        name: String,
+        /// REAL_ESTATE_AGENCY, BROKER, CRM ou MARKETPLACE.
+        #[arg(long = "type")]
+        partner_type: String,
+        /// VRSYNC (API: só depois de confirmar a integração; ver docs).
+        #[arg(long, default_value = "VRSYNC")]
+        provider: String,
+        /// URL do feed VRSync autorizado pelo parceiro.
+        #[arg(long)]
+        feed_url: Option<String>,
+        /// Nome da variável de ambiente com o valor do cabeçalho
+        /// `Authorization` do feed (ex.: PARTNER_A_FEED_AUTH).
+        #[arg(long)]
+        authorization_env: Option<String>,
+    },
+    /// Lista parceiros.
+    List,
+    /// Muda o status (ACTIVE, PAUSED, DISABLED).
+    SetStatus {
+        #[arg(long)]
+        slug: String,
+        #[arg(long)]
+        status: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum SyncTarget {
+    /// `sync properties --partner <slug>`: um job independente por parceiro.
+    Properties {
+        #[arg(long)]
+        partner: String,
+        /// Lê o feed de um arquivo local em vez da URL cadastrada.
+        #[arg(long)]
+        file: Option<PathBuf>,
+        /// Inativa mesmo que mais da metade dos anúncios tenha sumido.
+        #[arg(long)]
+        allow_mass_deactivation: bool,
+        #[command(flatten)]
+        enrichment: Enrichment,
+    },
+    /// Feed VRSync local sem parceiro cadastrado (testes e desenvolvimento).
+    Vrsync {
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long)]
+        allow_mass_deactivation: bool,
     },
 }
 
@@ -157,6 +258,8 @@ enum CrawlTarget {
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
+        // Logs no stderr: o stdout fica com a saída JSON dos comandos.
+        .with_writer(std::io::stderr)
         .init();
 
     let cli = Cli::parse();
@@ -170,8 +273,16 @@ async fn main() -> anyhow::Result<()> {
             tracing::info!("migrations aplicadas");
         }
         Command::Crawl { target } => crawl(target, pool).await?,
-        Command::Serve { addr } => {
-            let app = crab_api::router(crab_api::AppState::new(pool));
+        Command::Partner { action } => partner(action, pool).await?,
+        Command::Sync { target } => sync(target, pool).await?,
+        Command::SyncRuns { limit } => {
+            for run in PropertyRepository::new(pool).recent_runs(limit).await? {
+                println!("{}", serde_json::to_string(&run)?);
+            }
+        }
+        Command::Serve { addr, enrichment } => {
+            let ingestor = build_ingestor(&pool, &enrichment)?;
+            let app = crab_api::router(crab_api::AppState::with_ingestor(pool, ingestor));
             let listener = tokio::net::TcpListener::bind(&addr).await?;
             tracing::info!(%addr, "API no ar");
             axum::serve(listener, app).await?;
@@ -183,19 +294,13 @@ async fn main() -> anyhow::Result<()> {
 async fn crawl(target: CrawlTarget, pool: sqlx::PgPool) -> anyhow::Result<()> {
     match target {
         CrawlTarget::Listings { file } => {
-            let source = FixtureListingSource::new(file);
-            let raw = source.fetch().await?;
-            let gazetteer = Gazetteer::mvp();
-            let repo = ListingRepository::new(pool);
-            let total = raw.len();
-            for item in raw {
-                let listing = normalize_listing(item, DataSource::ListingFixture, &gazetteer);
-                if listing.location.municipality_ibge_code.is_none() {
-                    tracing::warn!(external_id = %listing.external_id, "município não resolvido");
-                }
-                repo.upsert(&listing).await?;
-            }
-            tracing::info!(total, source = source.name(), "anúncios persistidos");
+            // Mesmo pipeline de qualquer fonte: normaliza, grava imóvel +
+            // anúncio + histórico de preço e registra a execução.
+            let ingestor = build_ingestor(&pool, &Enrichment::disabled())?;
+            let report = ingestor
+                .sync(&FixtureProvider::new(file), None, &SyncOptions::default())
+                .await?;
+            finish_sync(report)?;
         }
         CrawlTarget::Ibge { municipality } => {
             let http = Arc::new(HttpClient::new(Duration::from_millis(500), 3)?);
@@ -343,6 +448,207 @@ async fn crawl(target: CrawlTarget, pool: sqlx::PgPool) -> anyhow::Result<()> {
             })
             .await?;
         }
+    }
+    Ok(())
+}
+
+impl Enrichment {
+    fn disabled() -> Self {
+        Self {
+            address_lookup: "none".into(),
+            geocoder: "none".into(),
+            nominatim_email: None,
+            geocoder_min_interval_ms: 1100,
+        }
+    }
+}
+
+/// Pipeline de ingestão com os serviços de endereço escolhidos.
+fn build_ingestor(pool: &sqlx::PgPool, e: &Enrichment) -> anyhow::Result<PropertyIngestor> {
+    let mut ingestor = PropertyIngestor::new(
+        PropertyRepository::new(pool.clone()),
+        PropertyNormalizer::new(Gazetteer::mvp()),
+    );
+    match e.address_lookup.as_str() {
+        "none" => {}
+        "viacep" => {
+            let http = Arc::new(HttpClient::with_options(HttpOptions {
+                min_interval: Duration::from_millis(300),
+                max_retries: 2,
+                timeout: Duration::from_secs(10),
+                ..HttpOptions::default()
+            })?);
+            ingestor = ingestor.with_postal_lookup(Arc::new(ViaCep::new(http)));
+            tracing::info!("consulta de CEP ativada (ViaCEP)");
+        }
+        other => anyhow::bail!("ADDRESS_LOOKUP desconhecido: {other} (use viacep ou none)"),
+    }
+    match e.geocoder.as_str() {
+        "none" => {}
+        "nominatim" => {
+            let http = Arc::new(HttpClient::with_options(HttpOptions {
+                // A política do Nominatim é de no máximo 1 requisição/s.
+                min_interval: Duration::from_millis(e.geocoder_min_interval_ms.max(1000)),
+                max_retries: 1,
+                timeout: Duration::from_secs(15),
+                ..HttpOptions::default()
+            })?);
+            ingestor =
+                ingestor.with_geocoder(Arc::new(Nominatim::new(http, e.nominatim_email.clone())));
+            tracing::info!("geocoding ativado (Nominatim/OpenStreetMap)");
+        }
+        other => anyhow::bail!("GEOCODER desconhecido: {other} (use nominatim ou none)"),
+    }
+    Ok(ingestor)
+}
+
+async fn partner(action: PartnerAction, pool: sqlx::PgPool) -> anyhow::Result<()> {
+    let repo = PropertyRepository::new(pool);
+    match action {
+        PartnerAction::Add {
+            slug,
+            name,
+            partner_type,
+            provider,
+            feed_url,
+            authorization_env,
+        } => {
+            let partner_type = PartnerType::parse(&partner_type)
+                .ok_or_else(|| anyhow::anyhow!("tipo inválido: {partner_type}"))?;
+            let provider = PropertySource::parse(&provider)
+                .ok_or_else(|| anyhow::anyhow!("provider inválido: {provider}"))?;
+            let mut configuration = serde_json::Map::new();
+            match provider {
+                PropertySource::Vrsync => {
+                    let url = feed_url.ok_or_else(|| anyhow::anyhow!("VRSYNC exige --feed-url"))?;
+                    validate_feed_url(&url)?;
+                    configuration.insert("feed_url".into(), url.into());
+                }
+                PropertySource::Api => anyhow::bail!(
+                    "nenhuma API oficial está integrada ainda; ver docs/property-sources/API.md"
+                ),
+                PropertySource::Manual | PropertySource::Fixture => {
+                    anyhow::bail!("{} não usa parceiro", provider.as_str())
+                }
+            }
+            if let Some(var) = authorization_env {
+                let valid = !var.is_empty()
+                    && var
+                        .chars()
+                        .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+                if !valid {
+                    anyhow::bail!("--authorization-env deve ser o NOME da variável (ex.: PARTNER_A_FEED_AUTH)");
+                }
+                configuration.insert("authorization_env".into(), var.into());
+            }
+            let now = chrono::Utc::now();
+            let p = PropertySourcePartner {
+                id: uuid::Uuid::new_v4(),
+                slug,
+                name,
+                partner_type,
+                status: PartnerStatus::Active,
+                provider,
+                configuration: serde_json::Value::Object(configuration),
+                created_at: now,
+                updated_at: now,
+            };
+            repo.create_partner(&p).await?;
+            println!("{}", serde_json::to_string(&p)?);
+        }
+        PartnerAction::List => {
+            for p in repo.partners().await? {
+                println!("{}", serde_json::to_string(&p)?);
+            }
+        }
+        PartnerAction::SetStatus { slug, status } => {
+            let status = PartnerStatus::parse(&status)
+                .ok_or_else(|| anyhow::anyhow!("status inválido: {status}"))?;
+            if !repo.set_partner_status(&slug, status).await? {
+                anyhow::bail!("parceiro não encontrado: {slug}");
+            }
+        }
+    }
+    Ok(())
+}
+
+async fn sync(target: SyncTarget, pool: sqlx::PgPool) -> anyhow::Result<()> {
+    match target {
+        SyncTarget::Properties {
+            partner,
+            file,
+            allow_mass_deactivation,
+            enrichment,
+        } => {
+            let repo = PropertyRepository::new(pool.clone());
+            let p = repo
+                .partner(&partner)
+                .await?
+                .ok_or_else(|| anyhow::anyhow!("parceiro não encontrado: {partner}"))?;
+            if p.status != PartnerStatus::Active {
+                anyhow::bail!("parceiro {} está {}", p.slug, p.status.as_str());
+            }
+            let provider = match p.provider {
+                PropertySource::Vrsync => {
+                    let input = match file {
+                        Some(path) => VrsyncInput::File(path),
+                        None => {
+                            let url = p.configuration["feed_url"]
+                                .as_str()
+                                .ok_or_else(|| anyhow::anyhow!("parceiro sem feed_url"))?
+                                .to_string();
+                            // O segredo é lido só agora, do ambiente.
+                            let authorization = match p.configuration["authorization_env"].as_str()
+                            {
+                                Some(var) => Some(std::env::var(var).with_context(|| {
+                                    format!("variável de ambiente {var} não definida")
+                                })?),
+                                None => None,
+                            };
+                            VrsyncInput::Url {
+                                http: Arc::new(HttpClient::with_options(HttpOptions {
+                                    min_interval: Duration::from_millis(1000),
+                                    max_retries: 2,
+                                    timeout: Duration::from_secs(20 * 60),
+                                    ..HttpOptions::default()
+                                })?),
+                                url,
+                                authorization,
+                            }
+                        }
+                    };
+                    VrsyncProvider::new(input, Some(p.id))
+                }
+                other => anyhow::bail!("sincronização de {} não implementada", other.as_str()),
+            };
+            let ingestor = build_ingestor(&pool, &enrichment)?;
+            let options = SyncOptions {
+                allow_mass_deactivation,
+                ..SyncOptions::default()
+            };
+            finish_sync(ingestor.sync(&provider, Some(&p), &options).await?)?;
+        }
+        SyncTarget::Vrsync {
+            file,
+            allow_mass_deactivation,
+        } => {
+            let ingestor = build_ingestor(&pool, &Enrichment::disabled())?;
+            let options = SyncOptions {
+                allow_mass_deactivation,
+                ..SyncOptions::default()
+            };
+            let provider = VrsyncProvider::new(VrsyncInput::File(file), None);
+            finish_sync(ingestor.sync(&provider, None, &options).await?)?;
+        }
+    }
+    Ok(())
+}
+
+/// Imprime o relatório e falha o processo se a fonte inteira falhou.
+fn finish_sync(report: SyncReport) -> anyhow::Result<()> {
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    if report.status == crab_domain::SyncRunStatus::Failed {
+        anyhow::bail!("sincronização {} falhou", report.run_id);
     }
     Ok(())
 }

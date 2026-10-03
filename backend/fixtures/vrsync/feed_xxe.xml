@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tentativa de XXE: deve ser recusada antes de qualquer leitura. -->
+<!DOCTYPE ListingDataFeed [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync">
+  <Listings><Listing><ListingID>&xxe;</ListingID></Listing></Listings>
+</ListingDataFeed>
