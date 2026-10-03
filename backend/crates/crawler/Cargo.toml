@@ -8,6 +8,7 @@ publish.workspace = true
 [dependencies]
 crab-domain.workspace = true
 async-trait.workspace = true
+calamine.workspace = true
 chrono.workspace = true
 reqwest.workspace = true
 serde.workspace = true
@@ -15,3 +16,6 @@ serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

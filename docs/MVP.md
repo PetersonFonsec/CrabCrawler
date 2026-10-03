@@ -14,7 +14,8 @@
 | Anúncios (fixture JSON) | arquivo local | desenvolver normalização, enriquecimento e API | pronto |
 | Anúncios (portal real) | a definir | primeira fonte real de anúncios | **decisão pendente** |
 | IBGE — API de Localidades e Agregados (SIDRA) | API oficial | código IBGE dos municípios, população do Censo 2022 | pronto |
-| SSP-SP — estatísticas por delegacia | dataset oficial (planilhas) | roubos, furtos, roubo de veículo, homicídios por mês | importador de CSV pronto; download automático pendente |
+| SSP-SP — Dados Mensais | dataset oficial (exportação manual) | ocorrências por natureza, município e delegacia, por mês | importador de CSV pronto; sem API pública ([detalhes](SEGURANCA.md)) |
+| Sinesp VDE (MJSP) | planilha anual oficial | eventos criminais por município e mês | importador XLSX pronto, com download direto do gov.br |
 
 **Sobre a fonte real de anúncios:** os grandes portais (ZAP, VivaReal, OLX,
 QuintoAndar) proíbem coleta automatizada nos termos de uso. Opções, em ordem
@@ -65,7 +66,8 @@ coletar dados públicos ─► mapear p/ região ─┘
 ## Próximos passos
 
 1. Escolher e implementar a fonte real de anúncios.
-2. Automatizar o download das planilhas da SSP-SP.
+2. Conferir os importadores de segurança contra arquivos reais e importar os
+   microdados georreferenciados da SSP ([próximos passos](SEGURANCA.md#próximos-passos)).
 3. Importar malhas do IBGE e relacionar por coordenada (PostGIS).
-4. Normalizar criminalidade por população (taxa por 100 mil habitantes).
+4. Estimativas anuais de população para a taxa por 100 mil de cada ano.
 5. Telas de busca, mapa e detalhe no frontend.
