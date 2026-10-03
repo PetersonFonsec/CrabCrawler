@@ -14,7 +14,7 @@ use crab_crawler::{SecurityDataProvider, SecurityScope};
 use crab_domain::{
     DataSource, Indicator, IndicatorKind, Provenance, Region, RegionIndicator, RegionLevel,
 };
-use crab_persistence::{IndicatorRepository, SecurityRepository};
+use crab_persistence::{DatasetImport, IndicatorRepository, SecurityRepository};
 use crab_processing::security::normalize_crime_records;
 use crab_processing::Gazetteer;
 use serde_json::Value;
@@ -42,6 +42,23 @@ async fn setup() -> Option<sqlx::PgPool> {
     let raw = sinesp.fetch(&SecurityScope::state("SP")).await.unwrap();
     let (stats, _) = normalize_crime_records(raw, &Gazetteer::mvp(), None);
     security.upsert_statistics(&stats).await.unwrap();
+
+    // Duas versões do mesmo dataset: a mais antiga importada por último.
+    for version in ["bancovde-2025.xlsx", "bancovde-2023.xlsx"] {
+        security
+            .record_import(&DatasetImport {
+                source: DataSource::SinespVde,
+                source_url: None,
+                dataset_version: Some(version.into()),
+                scope: "SP".into(),
+                records_read: 1,
+                records_stored: 1,
+                records_skipped: 0,
+                report: serde_json::json!({}),
+            })
+            .await
+            .unwrap();
+    }
 
     let census = NaiveDate::from_ymd_opt(2022, 8, 1).unwrap();
     let indicators = IndicatorRepository::new(pool.clone());
@@ -156,4 +173,12 @@ async fn security_endpoints_end_to_end() {
     let (status, body) = get(&app, "/security/sources").await;
     assert_eq!(status, StatusCode::OK);
     assert!(body["sources"].as_array().unwrap().len() >= 3);
+    let versions: Vec<&str> = body["latest_imports"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|i| i["dataset_version"].as_str())
+        .collect();
+    assert!(versions.contains(&"bancovde-2025.xlsx"), "{versions:?}");
+    assert!(versions.contains(&"bancovde-2023.xlsx"), "{versions:?}");
 }
