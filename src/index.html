@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
 
@@ -75,53 +75,69 @@
       sizes="16x16"
       href="/favicon/favicon-16x16.png"
     />
-    <link rel="manifest" href="/favicon/manifest.json" />
-
-    <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#f8f1e7" />
-    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="msapplication-TileColor" content="#fa2f3a" />
+    <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png" />
+    <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
+    <meta name="apple-mobile-web-app-title" content="CrabCrawler" />
+    <meta name="application-name" content="CrabCrawler" />
 
-    <!-- Título da página -->
+    <!-- SEO -->
     <title>CrabCrawler | Saiba onde você está se metendo</title>
-
-    <!-- Descrição da página (SEO + Compartilhamento) -->
-    <meta
-      name="description"
-      content="Antes de se mudar, investigue. Busque imóveis e descubra tudo sobre a região: segurança, saúde, educação, mobilidade e preços."
-    />
+    <meta name="description" content="Antes de se mudar, investigue. Busque imóveis e veja o raio-x do bairro: segurança, saúde, escolas, transporte, áreas verdes e preço do m², a partir de dados públicos." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="CrabCrawler" />
+    <link rel="canonical" href="https://www.crabcrawler.com.br/" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
 
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn, etc.) -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CrabCrawler" />
+    <meta property="og:locale" content="pt_BR" />
     <meta property="og:url" content="https://www.crabcrawler.com.br/" />
-    <meta
-      property="og:title"
-      content="Antes de se mudar, investigue. Busque imóveis e descubra tudo sobre a região: segurança, saúde, educação, mobilidade e preços."
-    />
-    <meta
-      property="og:description"
-      content="Antes de se mudar, investigue. Busque imóveis e descubra tudo sobre a região: segurança, saúde, educação, mobilidade e preços."
-    />
-    <meta
-      property="og:image"
-      content="https://www.crabcrawler.com.br/imagem-compartilhamento.png"
-    />
+    <meta property="og:title" content="CrabCrawler | Saiba onde você está se metendo" />
+    <meta property="og:description" content="Antes de se mudar, investigue. Busque imóveis e veja o raio-x do bairro: segurança, saúde, escolas, transporte, áreas verdes e preço do m², a partir de dados públicos." />
+    <meta property="og:image" content="https://www.crabcrawler.com.br/imagem-compartilhamento.png" />
+    <meta property="og:image:secure_url" content="https://www.crabcrawler.com.br/imagem-compartilhamento.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CrabCrawler: Saiba onde você está se metendo. Um caranguejo com lupa sobre o mapa de um bairro, com notas de segurança e transporte." />
 
     <!-- Twitter Card (X/Twitter) -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://www.crabcrawler.com.br/" />
-    <meta
-      name="twitter:title"
-      content="Antes de se mudar, investigue. Busque imóveis e descubra tudo sobre a região: segurança, saúde, educação, mobilidade e preços."
-    />
-    <meta
-      name="twitter:description"
-      content="Antes de se mudar, investigue. Busque imóveis e descubra tudo sobre a região: segurança, saúde, educação, mobilidade e preços."
-    />
-    <meta
-      name="twitter:image"
-      content="https://www.crabcrawler.com.br/imagem-compartilhamento.png"
-    />
+    <meta name="twitter:title" content="CrabCrawler | Saiba onde você está se metendo" />
+    <meta name="twitter:description" content="Antes de se mudar, investigue. Busque imóveis e veja o raio-x do bairro: segurança, saúde, escolas, transporte, áreas verdes e preço do m², a partir de dados públicos." />
+    <meta name="twitter:image" content="https://www.crabcrawler.com.br/imagem-compartilhamento.png" />
+    <meta name="twitter:image:alt" content="CrabCrawler: Saiba onde você está se metendo. Um caranguejo com lupa sobre o mapa de um bairro." />
+
+    <!-- Dados estruturados (Google e assistentes de IA) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://www.crabcrawler.com.br/#website",
+            "name": "CrabCrawler",
+            "url": "https://www.crabcrawler.com.br/",
+            "inLanguage": "pt-BR",
+            "description": "Antes de se mudar, investigue. Busque imóveis e veja o raio-x do bairro: segurança, saúde, escolas, transporte, áreas verdes e preço do m², a partir de dados públicos."
+          },
+          {
+            "@type": "WebApplication",
+            "name": "CrabCrawler",
+            "url": "https://www.crabcrawler.com.br/",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "pt-BR",
+            "image": "https://www.crabcrawler.com.br/imagem-compartilhamento.png",
+            "description": "Busca de imóveis com indicadores do bairro (segurança, saúde, educação, mobilidade, áreas verdes e preço) calculados a partir de dados públicos como IBGE, DATASUS, INEP, SSP e OpenStreetMap."
+          }
+        ]
+      }
+    </script>
 
     <!-- fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
